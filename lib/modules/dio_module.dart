@@ -1,10 +1,11 @@
+import 'package:astralnote_app/config.dart';
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
 import 'package:astralnote_app/infrastructure/secure_storage_repository.dart';
 import 'package:dio/dio.dart';
 
 class DioModule {
   final dio = createDio();
-  final tokenDio = Dio(BaseOptions(baseUrl: 'http://localhost:8055'));
+  final tokenDio = Dio(BaseOptions(baseUrl: Config.backendUrl));
 
   DioModule._internal();
 
@@ -13,7 +14,7 @@ class DioModule {
   factory DioModule() => _singleton;
 
   static Dio createDio() {
-    final dio = Dio(BaseOptions(baseUrl: 'http://localhost:8055'));
+    final dio = Dio(BaseOptions(baseUrl: Config.backendUrl));
 
     dio.interceptors.addAll([
       InterceptorsWrapper(
@@ -25,9 +26,13 @@ class DioModule {
         onError: (DioError e, handler) async {
           if (e.response?.statusCode == 401) {
             final refreshToken = await SecureStorageRepository().getWithKey(StorageKeys.refreshToken);
-            final failureOrAuth = await AuthRepository().refreshAccessToken(refreshToken: refreshToken.toString());
+            final failureOrAuth =
+                await AuthRepository(dioModule: DioModule()).refreshAccessToken(refreshToken: refreshToken.toString());
             failureOrAuth.fold(
-              (_) => handler.reject(e),
+              (_) {
+                // TODO: Trigger logout from here
+                handler.reject(e);
+              },
               (auth) async {
                 final retryRequest = await dio.request(
                   e.requestOptions.path,
@@ -41,19 +46,9 @@ class DioModule {
           }
         },
       ),
-      LogInterceptor(request: false,requestHeader: false, responseHeader: false, responseBody: false),
+      LogInterceptor(request: false, requestHeader: false, responseHeader: false, responseBody: false),
     ]);
 
     return dio;
   }
-
-  // Future<Response<dynamic>> _retry(RequestOptions requestOptions) async {
-  //   final options = Options(method: requestOptions.method, headers: requestOptions.headers);
-  //   return dio.request(
-  //     requestOptions.path,
-  //     data: requestOptions.data,
-  //     queryParameters: requestOptions.queryParameters,
-  //     options: options,
-  //   );
-  // }
 }

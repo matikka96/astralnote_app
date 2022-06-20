@@ -29,18 +29,6 @@ class NoteDataDTO with _$NoteDataDTO {
       dateUpdated: dateUpdated,
       content: content,
       color: color,
-      header: _parseHeader(content),
-      subHeader: _parseSubHeader(content),
     );
-  }
-
-  // TODO: Finish parse method
-  String _parseHeader(String content) {
-    return '';
-  }
-
-  // TODO: Finish parse method
-  String _parseSubHeader(String content) {
-    return '';
   }
 }

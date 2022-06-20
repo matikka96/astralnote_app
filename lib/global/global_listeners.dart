@@ -1,3 +1,4 @@
+import 'package:astralnote_app/global/listeners/connectivity_listener.dart';
 import 'package:flutter/material.dart';
 
 class GlobalListeners extends StatelessWidget {
@@ -10,10 +11,8 @@ class GlobalListeners extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return child;
-    // return AuthGuard(
-    //   // navigator: navigator,
-    //   child: child,
-    // );
+    return ConnectivityListener(
+      child: child,
+    );
   }
 }

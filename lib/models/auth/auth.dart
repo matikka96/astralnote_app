@@ -2,7 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'auth.freezed.dart';
 
-enum AuthError { userNotExist, invalidCredentials, invalidPayload, unexpected }
+
 
 @freezed
 class Auth with _$Auth {

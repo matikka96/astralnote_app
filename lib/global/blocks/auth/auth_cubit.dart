@@ -1,6 +1,5 @@
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
 import 'package:astralnote_app/infrastructure/secure_storage_repository.dart';
-import 'package:astralnote_app/models/auth/auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -8,10 +7,21 @@ part 'auth_state.dart';
 part 'auth_cubit.freezed.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit() : super(const AuthState.authenticated());
+  final AuthRepository _authRepository;
+  final SecureStorageRepository _secureStorageRepository;
+  
+  AuthCubit({
+    required AuthRepository authRepository,
+    required SecureStorageRepository secureStorageRepository,
+  })  : _authRepository = authRepository,
+        _secureStorageRepository = secureStorageRepository,
+        super(const AuthState.authenticated()) {
+    _init();
+  }
 
-  init() async {
-    final refreshToken = await SecureStorageRepository().getWithKey(StorageKeys.refreshToken);
+
+  _init() async {
+    final refreshToken = await _secureStorageRepository.getWithKey(StorageKeys.refreshToken);
     if (refreshToken != null) {
       emit(const AuthState.authenticated());
     } else {
@@ -20,29 +30,32 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   login(String email, String password) async {
-    final failureOrAuth = await AuthRepository().login(email: email, password: password);
+    emit(const AuthState.uninitialized(inProgress: true));
+    final failureOrAuth = await _authRepository.login(email: email, password: password);
     failureOrAuth.fold(
-      (error) => emit(AuthState.unauthenticated(authError: error)),
+      (error) => emit(AuthState.uninitialized(inProgress: false, authError: error)),
       (auth) async {
-        await SecureStorageRepository().setWithKey(StorageKeys.refreshToken, auth.refreshToken);
-        await SecureStorageRepository().setWithKey(StorageKeys.accessToken, auth.accessToken);
+        await _secureStorageRepository.setWithKey(StorageKeys.refreshToken, auth.refreshToken);
+        await _secureStorageRepository.setWithKey(StorageKeys.accessToken, auth.accessToken);
         emit(const AuthState.authenticated());
       },
     );
   }
 
   logout() async {
-    await SecureStorageRepository().removeWithKey(key: StorageKeys.refreshToken);
+    await _secureStorageRepository.removeWithKey(key: StorageKeys.refreshToken);
     emit(const AuthState.unauthenticated());
   }
 
   printTokens() async {
-    final refresh = await SecureStorageRepository().getWithKey(StorageKeys.refreshToken);
-    final access = await SecureStorageRepository().getWithKey(StorageKeys.accessToken);
+    final refresh = await _secureStorageRepository.getWithKey(StorageKeys.refreshToken);
+    final access = await _secureStorageRepository.getWithKey(StorageKeys.accessToken);
     print('Access: $access');
     print('Refresh: $refresh');
   }
 
-  deleteAccessToken() async => SecureStorageRepository().removeWithKey(key: StorageKeys.accessToken);
-  deleteRefreshToken() async => SecureStorageRepository().removeWithKey(key: StorageKeys.refreshToken);
+  deleteAccessToken() async => _secureStorageRepository.removeWithKey(key: StorageKeys.accessToken);
+  deleteRefreshToken() async => _secureStorageRepository.removeWithKey(key: StorageKeys.refreshToken);
+
+  updateState(AuthState newState) async => emit(newState);
 }
