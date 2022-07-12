@@ -25,8 +25,8 @@ class NoteDataDTO with _$NoteDataDTO {
   Note toDomain() {
     return Note(
       id: id,
-      dateCreated: dateCreated,
-      dateUpdated: dateUpdated,
+      dateCreated: DateTime.parse(dateCreated),
+      dateUpdated: dateUpdated != null ? DateTime.parse(dateUpdated!) : null,
       content: content,
       color: color,
     );

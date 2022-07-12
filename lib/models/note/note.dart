@@ -11,10 +11,10 @@ part 'note.g.dart';
 class Note with _$Note {
   const factory Note({
     required String id,
-    required String dateCreated,
-    String? dateUpdated,
-    String? color,
+    required DateTime dateCreated,
     required String content,
+    DateTime? dateUpdated,
+    String? color,
   }) = _Note;
 
   const Note._();
@@ -27,33 +27,26 @@ class Note with _$Note {
 
     return Note(
       id: randomID,
-      dateCreated: DateTime.now().toUtc().toString(),
+      dateCreated: DateTime.now().toUtc(),
       content: '',
     );
   }
 
-  String title() {
+  String get title {
     final rows = content.split('\n');
     for (var i = 0; i < rows.length; i++) {
       final row = rows[i];
       if (row.isNotEmpty) return row;
     }
-    return '';
+    return 'New note';
   }
 
-  String subTitle() {
+  String get subTitle {
     final rows = content.split('\n');
     for (var i = 1; i < rows.length; i++) {
       final row = rows[i];
       if (row.isNotEmpty) return row;
     }
     return '';
-  }
-
-  String _generateID() {
-    final randomNumber = Random().nextDouble();
-    final randomBytes = utf8.encode(randomNumber.toString());
-    final randomID = sha1.convert(randomBytes).toString();
-    return randomID;
   }
 }

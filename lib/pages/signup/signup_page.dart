@@ -1,11 +1,8 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
 import 'package:astralnote_app/modules/dio_module.dart';
 import 'package:astralnote_app/pages/signup/cubit/signup_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
 class SignupPage extends StatelessWidget {
   const SignupPage({Key? key}) : super(key: key);
@@ -34,18 +31,18 @@ class _Body extends StatelessWidget {
     final emailController = TextEditingController(text: '');
     final passwordController = TextEditingController(text: '');
 
-    return PlatformScaffold(
-      appBar: PlatformAppBar(title: const Text('Sign up')),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Sign up')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              PlatformTextField(controller: emailController),
+              TextField(controller: emailController),
               const Divider(),
-              PlatformTextField(controller: passwordController),
+              TextField(controller: passwordController),
               const Divider(),
-              PlatformButton(
+              MaterialButton(
                 onPressed: () => signupCubit.signup(email: emailController.text, password: passwordController.text),
                 color: Colors.amber,
                 child: const Text('Sign up'),

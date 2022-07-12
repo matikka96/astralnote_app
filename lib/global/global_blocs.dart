@@ -32,11 +32,11 @@ class GlobalBlocs extends StatelessWidget {
             networkMonitorRepository: NetworkMonitorRepository(connectivityModule: ConnectivityModule()),
           ),
         ),
-        BlocProvider<NotesCubit>(
-          create: (_) => NotesCubit(
-            notesLocalRepository: NotesLocalRepository(),
-          ),
-        ),
+        // BlocProvider<NotesCubit>(
+        //   create: (_) => NotesCubit(
+        //     notesLocalRepository: NotesLocalRepository(),
+        //   ),
+        // ),
       ],
       child: child,
     );
