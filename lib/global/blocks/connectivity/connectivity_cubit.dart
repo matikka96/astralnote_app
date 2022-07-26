@@ -27,4 +27,10 @@ class ConnectivityCubit extends Cubit<ConnectivityState> {
       emit(const ConnectivityState.offline());
     }
   }
+
+  @override
+  Future<void> close() async {
+    await _connectionStatusStream?.cancel();
+    return super.close();
+  }
 }

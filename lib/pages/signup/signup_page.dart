@@ -1,5 +1,4 @@
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
-import 'package:astralnote_app/modules/dio_module.dart';
 import 'package:astralnote_app/pages/signup/cubit/signup_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +9,7 @@ class SignupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SignupCubit(authRepository: AuthRepository(dioModule: DioModule())),
+      create: (context) => SignupCubit(authRepository: context.read<AuthRepository>()),
       child: BlocListener<SignupCubit, SignupState>(
         listener: (context, state) {
           print(state);

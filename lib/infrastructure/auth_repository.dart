@@ -1,9 +1,9 @@
+import 'package:astralnote_app/config.dart';
 import 'package:collection/collection.dart';
 import 'package:astralnote_app/infrastructure/secure_storage_repository.dart';
-import 'package:astralnote_app/models/auth/auth.dart';
-import 'package:astralnote_app/models/auth/dto/auth_dto.dart';
-import 'package:astralnote_app/models/role/dto/role_dto.dart';
-import 'package:astralnote_app/modules/dio_module.dart';
+import 'package:astralnote_app/domain/auth/auth.dart';
+import 'package:astralnote_app/domain/auth/dto/auth_dto.dart';
+import 'package:astralnote_app/domain/role/dto/role_dto.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 
@@ -11,13 +11,12 @@ enum AuthError { userNotExist, invalidCredentials, userAlreadyExist, invalidPayl
 
 class AuthRepository {
   AuthRepository({
-    required DioModule dioModule,
-  }) : _authDio = dioModule.tokenDio;
+    required SecureStorageRepository secureStorageRepository,
+  }) : _secureStorageRepository = secureStorageRepository;
 
-  final Dio _authDio;
-  // static AuthRepository? _instance;
-  // factory AuthRepository() => _instance ??= AuthRepository._();
-  // AuthRepository._();
+  final SecureStorageRepository _secureStorageRepository;
+
+  final Dio _authDio = Dio(BaseOptions(baseUrl: Config.backendUrl));
 
   Future<Either<AuthError, Auth>> login({required String email, required String password}) async {
     try {
@@ -67,8 +66,8 @@ class AuthRepository {
       final response = await _authDio.post('/auth/refresh', data: body);
       final authDTO = AuthDTO.fromJson(response.data);
       final auth = authDTO.data.toDomain();
-      await SecureStorageRepository().setWithKey(StorageKeys.accessToken, auth.accessToken.toString());
-      await SecureStorageRepository().setWithKey(StorageKeys.refreshToken, auth.refreshToken.toString());
+      await _secureStorageRepository.setWithKey(StorageKeys.accessToken, auth.accessToken.toString());
+      await _secureStorageRepository.setWithKey(StorageKeys.refreshToken, auth.refreshToken.toString());
       return right(auth);
     } catch (e) {
       if (e is DioError && e.response?.statusCode == 400) return left(AuthError.invalidPayload);

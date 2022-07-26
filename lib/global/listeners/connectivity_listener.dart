@@ -18,8 +18,8 @@ class ConnectivityListener extends StatelessWidget {
     return BlocListener<ConnectivityCubit, ConnectivityState>(
       listener: (context, state) {
         state.when(
-          offline: () => notesCubit.setSyncStatus(syncActive: false),
-          online: () => notesCubit.setSyncStatus(syncActive: true),
+          offline: () => notesCubit.setSyncStatus(isOnline: false),
+          online: () => notesCubit.setSyncStatus(isOnline: true),
         );
       },
       child: child,

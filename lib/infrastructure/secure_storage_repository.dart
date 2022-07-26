@@ -1,27 +1,25 @@
 import 'package:astralnote_app/modules/secure_storage_module.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 enum StorageKeys { refreshToken, accessToken }
 
 class SecureStorageRepository {
-  static SecureStorageRepository? _instance;
+  SecureStorageRepository({
+    required SecureStorageModule secureStorageModule,
+  }) : _secureStorage = secureStorageModule.instance;
 
-  factory SecureStorageRepository() => _instance ??= SecureStorageRepository._();
-
-  SecureStorageRepository._();
+  final FlutterSecureStorage _secureStorage;
 
   Future<String?> getWithKey(StorageKeys key) async {
-    final storage = SecureStorageModule().instance;
-    final value = await storage.read(key: key.name);
+    final value = await _secureStorage.read(key: key.name);
     return value;
   }
 
   Future<void> setWithKey(StorageKeys key, String value) async {
-    final storage = SecureStorageModule().instance;
-    await storage.write(key: key.name, value: value);
+    await _secureStorage.write(key: key.name, value: value);
   }
 
   Future<void> removeWithKey({required StorageKeys key}) async {
-    final storage = SecureStorageModule().instance;
-    await storage.delete(key: key.name);
+    await _secureStorage.delete(key: key.name);
   }
 }

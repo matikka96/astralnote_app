@@ -1,4 +1,4 @@
-import 'package:astralnote_app/models/role/role.dart';
+import 'package:astralnote_app/domain/role/role.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'role_data_dto.freezed.dart';

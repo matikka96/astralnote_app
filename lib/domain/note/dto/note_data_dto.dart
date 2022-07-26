@@ -1,4 +1,5 @@
-import 'package:astralnote_app/models/note/note.dart';
+import 'package:astralnote_app/domain/note/note.dart';
+import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'note_data_dto.freezed.dart';
@@ -23,8 +24,11 @@ class NoteDataDTO with _$NoteDataDTO {
   factory NoteDataDTO.fromJson(Map<String, dynamic> json) => _$NoteDataDTOFromJson(json);
 
   Note toDomain() {
+    final parsedStatus = NoteStatus.values.firstWhereOrNull((noteStatus) => noteStatus.name == status);
+
     return Note(
       id: id,
+      status: parsedStatus ?? NoteStatus.published,
       dateCreated: DateTime.parse(dateCreated),
       dateUpdated: dateUpdated != null ? DateTime.parse(dateUpdated!) : null,
       content: content,

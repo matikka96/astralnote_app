@@ -7,10 +7,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'note.freezed.dart';
 part 'note.g.dart';
 
+enum NoteStatus { published, draft, archived }
+
 @freezed
 class Note with _$Note {
   const factory Note({
     required String id,
+    required NoteStatus status,
     required DateTime dateCreated,
     required String content,
     DateTime? dateUpdated,
@@ -27,6 +30,7 @@ class Note with _$Note {
 
     return Note(
       id: randomID,
+      status: NoteStatus.published,
       dateCreated: DateTime.now().toUtc(),
       content: '',
     );
@@ -49,4 +53,23 @@ class Note with _$Note {
     }
     return '';
   }
+
+  bool isMoreRecentThan(Note otherNote) {
+    final thisDate = dateUpdated;
+    final otherDate = otherNote.dateUpdated;
+    // TODO: Can replace with just (otherDate == null) ???
+    if (thisDate == null && otherDate == null) return true;
+    if (thisDate != null && otherDate == null) return true;
+    if (thisDate == null && otherDate != null) return false;
+    return thisDate!.isAfter(otherDate!) ? true : false;
+  }
+
+  // Note compareToAndReturnMoreRecent(Note otherNote) {
+  //   final thisDate = dateUpdated;
+  //   final otherDate = otherNote.dateUpdated;
+  //   if (thisDate == null && otherDate == null) return this;
+  //   if (thisDate != null && otherDate == null) return this;
+  //   if (thisDate == null && otherDate != null) returfn otherNote;
+  //   return thisDate!.isAfter(otherDate!) ? this : otherNote;
+  // }
 }

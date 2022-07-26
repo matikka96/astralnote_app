@@ -1,4 +1,4 @@
-import 'package:astralnote_app/models/auth/dto/auth_data_dto.dart';
+import 'package:astralnote_app/domain/auth/dto/auth_data_dto.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'auth_dto.freezed.dart';

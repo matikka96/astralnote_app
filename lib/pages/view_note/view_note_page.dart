@@ -1,5 +1,5 @@
 import 'package:astralnote_app/infrastructure/notes_local_repository.dart';
-import 'package:astralnote_app/models/note/note.dart';
+import 'package:astralnote_app/domain/note/note.dart';
 import 'package:astralnote_app/pages/view_note/cubit/view_note_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +12,7 @@ class ViewNotePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ViewNoteCubit(notesLocalRepository: NotesLocalRepository()),
+      create: (context) => ViewNoteCubit(notesLocalRepository: context.read<NotesLocalRepository>()),
       child: _Body(note: note),
     );
   }
@@ -36,7 +36,7 @@ class _Body extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              viewNoteCubit.onNoteDelete(id: note.id);
+              viewNoteCubit.onNoteDelete(note);
               Navigator.of(context).pop();
             },
             icon: const Icon(Icons.delete),

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:astralnote_app/models/note/note.dart';
+import 'package:astralnote_app/domain/note/note.dart';
 import 'package:dartz/dartz.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -9,10 +9,7 @@ import 'package:rxdart/rxdart.dart';
 enum NotesLocalFailure { unexpected, ioError, updateFailed }
 
 class NotesLocalRepository {
-  static NotesLocalRepository? _instance;
-  factory NotesLocalRepository() => _instance ??= NotesLocalRepository._();
-
-  NotesLocalRepository._() {
+  NotesLocalRepository() {
     _loadNotes();
     failureOrNotesLocal.debounceTime(const Duration(seconds: 1)).listen((_) => _saveNotes());
   }
@@ -37,11 +34,17 @@ class NotesLocalRepository {
   void _loadNotes() async {
     try {
       final notesFile = await _localNotesFile;
-      final notesRaw = await notesFile.readAsString();
-      final Iterable notesJson = json.decode(notesRaw.isNotEmpty ? notesRaw : '[]');
+      String? notesRaw = await notesFile.readAsString();
+      Iterable notesJson = [];
+      try {
+        notesJson = json.decode(notesRaw);
+      } catch (e) {
+        print('Could not parse notes from local file');
+      }
       final notes = notesJson.map((noteJson) => Note.fromJson(noteJson)).toList();
       _notesController.add(right(notes));
     } catch (e) {
+      print('Error loading local notes');
       _notesController.add(left(NotesLocalFailure.unexpected));
     }
   }
@@ -68,22 +71,22 @@ class NotesLocalRepository {
     );
   }
 
-  Note updateNote(Note targetNote, {required String updatedContent}) {
-    final updatedNote = targetNote.copyWith(content: updatedContent);
+  Note addOrUpdateNote(Note note) {
+    // final updatedNote = targetNote.copyWith(content: updatedContent);
     final failureOrUpdatedNotes = _notesController.stream.value;
     return failureOrUpdatedNotes.fold(
-      (_) => targetNote,
-      (notes) {
-        final noteIndex = notes.indexWhere((note) => note.id == targetNote.id);
-        final updatedNotes = [...notes];
+      (_) => note,
+      (localNotes) {
+        final noteIndex = localNotes.indexWhere((localNote) => localNote.id == note.id);
+        final updatedNotes = [...localNotes];
         if (noteIndex == -1) {
-          updatedNotes.add(updatedNote);
+          updatedNotes.add(note);
           _notesController.add(right(updatedNotes));
-          return updatedNote;
+          return note;
         } else {
-          updatedNotes[noteIndex] = updatedNote;
+          updatedNotes[noteIndex] = note;
           _notesController.add(right(updatedNotes));
-          return updatedNote;
+          return note;
         }
       },
     );

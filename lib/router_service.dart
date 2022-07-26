@@ -1,4 +1,4 @@
-import 'package:astralnote_app/models/note/note.dart';
+import 'package:astralnote_app/domain/note/note.dart';
 import 'package:astralnote_app/pages/login/login_page.dart';
 import 'package:astralnote_app/pages/main/main_page.dart';
 import 'package:astralnote_app/pages/profile/profile_page.dart';
