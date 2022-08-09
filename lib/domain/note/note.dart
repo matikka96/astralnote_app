@@ -9,6 +9,8 @@ part 'note.g.dart';
 
 enum NoteStatus { published, draft, archived }
 
+enum NoteSource { local, remote }
+
 @freezed
 class Note with _$Note {
   const factory Note({
@@ -16,6 +18,7 @@ class Note with _$Note {
     required NoteStatus status,
     required DateTime dateCreated,
     required String content,
+    required NoteSource source,
     DateTime? dateUpdated,
     String? color,
   }) = _Note;
@@ -33,6 +36,7 @@ class Note with _$Note {
       status: NoteStatus.published,
       dateCreated: DateTime.now().toUtc(),
       content: '',
+      source: NoteSource.local,
     );
   }
 
@@ -54,22 +58,17 @@ class Note with _$Note {
     return '';
   }
 
+  bool get isQualifiedForDeletion {
+    if (dateUpdated == null) return true;
+    return status == NoteStatus.archived && DateTime.now().difference(dateUpdated!).inDays > 1;
+  }
+
   bool isMoreRecentThan(Note otherNote) {
     final thisDate = dateUpdated;
     final otherDate = otherNote.dateUpdated;
-    // TODO: Can replace with just (otherDate == null) ???
-    if (thisDate == null && otherDate == null) return true;
+    if (thisDate == null && otherDate == null) return false;
     if (thisDate != null && otherDate == null) return true;
     if (thisDate == null && otherDate != null) return false;
     return thisDate!.isAfter(otherDate!) ? true : false;
   }
-
-  // Note compareToAndReturnMoreRecent(Note otherNote) {
-  //   final thisDate = dateUpdated;
-  //   final otherDate = otherNote.dateUpdated;
-  //   if (thisDate == null && otherDate == null) return this;
-  //   if (thisDate != null && otherDate == null) return this;
-  //   if (thisDate == null && otherDate != null) returfn otherNote;
-  //   return thisDate!.isAfter(otherDate!) ? this : otherNote;
-  // }
 }

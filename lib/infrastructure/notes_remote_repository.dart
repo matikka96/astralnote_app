@@ -24,7 +24,7 @@ class NotesRemoteRepository {
     try {
       final response = await _dio.get(_endpoint);
       final noteDTO = NotesDTO.fromJson(response.data);
-      final notes = noteDTO.data.map((noteDataDTO) => noteDataDTO.toDomain()).toList();
+      final notes = noteDTO.data.map((noteDataDTO) => noteDataDTO.toDomain(source: NoteSource.remote)).toList();
       _notesRemoteController.add(right(notes));
     } catch (e) {
       GenericError error = GenericError.unexpected;
@@ -46,7 +46,7 @@ class NotesRemoteRepository {
       final body = {'id': newNote.id, 'content': newNote.content, 'status': newNote.status.name};
       final response = await _dio.post(_endpoint, data: body);
       final createdNoteDTO = NoteDTO.fromJson(response.data);
-      return right(createdNoteDTO.data.toDomain());
+      return right(createdNoteDTO.data.toDomain(source: NoteSource.remote));
     } catch (e) {
       GenericError error = GenericError.unexpected;
       if (e is DioError && e.response?.statusCode == 401) error = GenericError.tokenExpired;
@@ -67,7 +67,7 @@ class NotesRemoteRepository {
       final body = {'content': updatedNote.content, 'status': updatedNote.status.name};
       final response = await _dio.patch('$_endpoint/${updatedNote.id}', data: body);
       final updatedNoteDTO = NoteDTO.fromJson(response.data);
-      return right(updatedNoteDTO.data.toDomain());
+      return right(updatedNoteDTO.data.toDomain(source: NoteSource.remote));
     } catch (e) {
       GenericError error = GenericError.unexpected;
       if (e is DioError && e.response?.statusCode == 401) error = GenericError.tokenExpired;

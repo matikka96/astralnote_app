@@ -32,19 +32,25 @@ class NotesLocalRepository {
   }
 
   void _loadNotes() async {
+    print('loadNotesLocal');
     try {
       final notesFile = await _localNotesFile;
       String? notesRaw = await notesFile.readAsString();
-      Iterable notesJson = [];
+      List<Note> notes = [];
       try {
-        notesJson = json.decode(notesRaw);
+        final notesJson = json.decode(notesRaw);
+        // final notesDTO = NotesDTO.fromJson(notesJson);
+        for (var noteJson in notesJson) {
+          final note = Note.fromJson(noteJson).copyWith(source: NoteSource.local);
+          notes.add(note);
+        }
+        _notesController.add(right(notes));
       } catch (e) {
-        print('Could not parse notes from local file');
+        print(e);
       }
-      final notes = notesJson.map((noteJson) => Note.fromJson(noteJson)).toList();
       _notesController.add(right(notes));
     } catch (e) {
-      print('Error loading local notes');
+      print(e);
       _notesController.add(left(NotesLocalFailure.unexpected));
     }
   }
@@ -60,34 +66,35 @@ class NotesLocalRepository {
     }
   }
 
-  addNote({required Note note}) {
-    final failureOrExistingNotes = _notesController.stream.value;
-    failureOrExistingNotes.fold(
-      (_) => print('Could not add note'),
-      (notes) {
-        final updatedNotes = [...notes, note];
-        _notesController.add(right(updatedNotes));
-      },
-    );
-  }
-
   Note addOrUpdateNote(Note note) {
-    // final updatedNote = targetNote.copyWith(content: updatedContent);
+    final updatedNote = note.copyWith(source: NoteSource.local);
     final failureOrUpdatedNotes = _notesController.stream.value;
     return failureOrUpdatedNotes.fold(
       (_) => note,
       (localNotes) {
-        final noteIndex = localNotes.indexWhere((localNote) => localNote.id == note.id);
+        final noteIndex = localNotes.indexWhere((localNote) => localNote.id == updatedNote.id);
         final updatedNotes = [...localNotes];
         if (noteIndex == -1) {
-          updatedNotes.add(note);
+          updatedNotes.add(updatedNote);
           _notesController.add(right(updatedNotes));
-          return note;
+          return updatedNote;
         } else {
-          updatedNotes[noteIndex] = note;
+          updatedNotes[noteIndex] = updatedNote;
           _notesController.add(right(updatedNotes));
-          return note;
+          return updatedNote;
         }
+      },
+    );
+  }
+
+  Note? findNoteById(String id) {
+    final noteWeAreLookingFor = _notesController.stream.value;
+    return noteWeAreLookingFor.fold(
+      (_) => null,
+      (localNotes) {
+        final noteIndex = localNotes.indexWhere((localNote) => localNote.id == id);
+        if (noteIndex != -1) return localNotes[noteIndex];
+        return null;
       },
     );
   }

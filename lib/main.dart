@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
       shadowColor: Colors.transparent,
       appBarTheme: const AppBarTheme(elevation: 0),
       inputDecorationTheme: const InputDecorationTheme(border: OutlineInputBorder(), isDense: true),
+      snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating, shape: StadiumBorder()),
     );
 
     return GlobalRepositories(

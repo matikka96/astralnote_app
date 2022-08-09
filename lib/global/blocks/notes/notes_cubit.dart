@@ -8,6 +8,7 @@ import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:rxdart/rxdart.dart';
 
 part 'notes_state.dart';
@@ -18,6 +19,8 @@ class NotesCubit extends Cubit<NotesState> {
   final NotesRemoteRepository _notesRemoteRepository;
   StreamSubscription<Either<NotesLocalFailure, List<Note>>>? _notesLocalStreamSubscription;
   StreamSubscription<Either<GenericError, List<Note>>>? _notesRemoteStreamSubscription;
+  // BehaviorSubject<String>? _notesSearchSubject;
+  final _searchQuerySubject = BehaviorSubject<String>();
 
   NotesCubit({
     required NotesLocalRepository notesLocalRepository,
@@ -25,27 +28,42 @@ class NotesCubit extends Cubit<NotesState> {
   })  : _notesLocalRepository = notesLocalRepository,
         _notesRemoteRepository = notesRemoteRepository,
         super(NotesState.initial()) {
-    _notesLocalStreamSubscription =
-        _notesLocalRepository.failureOrNotesLocal.debounceTime(const Duration(seconds: 1)).listen(_onNotesLocalChanged);
+    _notesLocalStreamSubscription = _notesLocalRepository.failureOrNotesLocal
+        .debounceTime(const Duration(milliseconds: 100))
+        .listen(_onNotesLocalChanged);
     _notesRemoteStreamSubscription = _notesRemoteRepository.failureOrNotesRemote
-        .debounceTime(const Duration(seconds: 1))
+        // .debounceTime(const Duration(seconds: 1))
         .listen(_onNotesRemoteChanged);
+    _searchQuerySubject.debounceTime(const Duration(milliseconds: 500)).listen((searchInput) {
+      emit(state.copyWith(searchQuery: searchInput));
+      _onFilterNotes();
+    });
   }
 
   Future<void> _onNotesLocalChanged(Either<NotesLocalFailure, List<Note>> failureOrNotes) async {
     failureOrNotes.fold(
       (error) => emit(state.copyWith(isLoading: false, isFailure: error)),
       (notesLocal) {
-        emit(state.copyWith(isLoading: false, notesLocal: notesLocal));
-        _syncNotes();
+        if (state.notesRemote != null && state.notesRemote!.isNotEmpty) {
+          emit(state.copyWith(isLoading: false, notesLocal: notesLocal));
+          _syncNotes();
+        } else {
+          emit(state.copyWith(
+            isLoading: false,
+            notesLocal: notesLocal,
+            notesParsed: notesLocal,
+            notesFiltered: notesLocal,
+          ));
+        }
       },
     );
   }
 
   Future<void> _onNotesRemoteChanged(Either<GenericError, List<Note>> failureOrNotes) async {
-    print('Notes loaded from remote');
     failureOrNotes.fold(
-      (error) => emit(state.copyWith(isLoading: false)), // , isFailure: error
+      (error) {
+        emit(state.copyWith(isLoading: false));
+      }, // , isFailure: error
       (notesRemote) {
         emit(state.copyWith(isLoading: false, notesRemote: notesRemote));
         _syncNotes();
@@ -53,59 +71,112 @@ class NotesCubit extends Cubit<NotesState> {
     );
   }
 
-  // 1. Move new remote notes --> local | DONE
-  // 2. Replace local note with remote if needed based on updated_time | DONE
-  // 3. Update remote notes with local based on updated_time
   Future<void> _syncNotes() async {
     if (state.canSync) {
       emit(state.copyWith(isSyncing: true));
-      final remoteNoteIds = state.notesRemote!.map((note) => note.id);
-      final localNoteIds = state.notesLocal!.map((note) => note.id);
 
-      final newRemoteNotes = state.notesRemote!.where((noteRemote) => !localNoteIds.contains(noteRemote.id)).toList();
-      final localAndNewNotes = [...state.notesLocal!, ...newRemoteNotes];
+      final notesRemote = state.notesRemote!, notesLocal = state.notesLocal!;
+      final allNotes = [...notesRemote, ...notesLocal];
 
-      final localAndNewNotesUpdated = localAndNewNotes.map((noteLocal) {
-        final remoteVersionOfNote = state.notesRemote!.firstWhereOrNull((noteRemote) => noteRemote.id == noteLocal.id);
-        if (remoteVersionOfNote != null && remoteVersionOfNote.isMoreRecentThan(noteLocal)) return remoteVersionOfNote;
-        return noteLocal;
-      }).toList();
+      final List<Note> notesParsed = [],
+          notesToUpdateRemote = [],
+          notesToPushRemote = [],
+          notesToUpdateLocal = [],
+          notesToPushLocal = [],
+          notesToRemoveLocal = [];
 
-      emit(state.copyWith(notesLocal: localAndNewNotesUpdated));
+      for (var note in allNotes) {
+        final noteNotFoundFromParsedList = !notesParsed.map((e) => e.id).contains(note.id);
+        if (noteNotFoundFromParsedList) {
+          final localVersion = allNotes.firstWhereOrNull((n) => n.id == note.id && n.source == NoteSource.local);
+          final remoteVersion = allNotes.firstWhereOrNull((n) => n.id == note.id && n.source == NoteSource.remote);
 
-      final notesToPushRemote =
-          localAndNewNotesUpdated.where((noteLocal) => !remoteNoteIds.contains(noteLocal.id)).toList();
-      final notesToUpdateRemote = localAndNewNotesUpdated.where((noteLocal) {
-        final remoteVersionOfNote = state.notesRemote!.firstWhereOrNull((noteRemote) => noteRemote.id == noteLocal.id);
-        if (remoteVersionOfNote != null && noteLocal.isMoreRecentThan(remoteVersionOfNote)) return true;
-        return false;
-      }).toList();
+          if (localVersion != null && remoteVersion != null) {
+            if (localVersion.isMoreRecentThan(remoteVersion)) {
+              notesToUpdateRemote.add(localVersion);
+              notesParsed.add(localVersion);
+            } else if (remoteVersion.isMoreRecentThan(localVersion)) {
+              notesToUpdateLocal.add(remoteVersion);
+              notesParsed.add(remoteVersion);
+            } else {
+              notesParsed.add(remoteVersion);
+            }
+          } else if (localVersion == null) {
+            notesToPushLocal.add(remoteVersion!);
+            notesParsed.add(remoteVersion);
+          } else if (remoteVersion == null) {
+            if (localVersion.isQualifiedForDeletion) {
+              notesToRemoveLocal.add(localVersion);
+            } else {
+              notesToPushRemote.add(localVersion);
+              notesParsed.add(localVersion);
+            }
+          }
+        }
+      }
 
-      // print('--- TO PUSH ---');
-      // notesToPushRemote.forEach((note) => print(note));
-      // print('--- TO UPDATE ---');
-      // notesToUpdateRemote.forEach((note) => print(note));
+      emit(state.copyWith(
+        notesParsed: notesParsed,
+        notesFiltered: notesParsed,
+      ));
 
+      for (var note in [...notesToPushLocal, ...notesToUpdateLocal]) {
+        _notesLocalRepository.addOrUpdateNote(note);
+      }
       await _notesRemoteRepository.createMultipleNotes(notesToPushRemote);
       await _notesRemoteRepository.updateMultipleNotes(notesToUpdateRemote);
-      if (notesToPushRemote.isNotEmpty || notesToUpdateRemote.isNotEmpty) {
+
+      if (notesToPushRemote.isEmpty || notesToUpdateRemote.isEmpty) {
+        emit(state.copyWith(isSyncing: false));
+      } else {
         await _notesRemoteRepository.loadNotesRemote();
       }
-      emit(state.copyWith(isSyncing: false));
     }
+  }
+
+  void onUpdateSearchQuery(String searchQuery) {
+    _searchQuerySubject.add(searchQuery);
+  }
+
+  _onFilterNotes() {
+    final List<Note> filteredNotes = [];
+
+    // TODO: Perform sort here
+
+    final searchQuery = state.searchQuery;
+    if (searchQuery.isNotEmpty) {
+      final searchResult = extractAllSorted<Note>(
+        query: searchQuery,
+        choices: state.notesParsed.where((note) => note.status == NoteStatus.published).toList(),
+        cutoff: 50,
+        getter: (note) => note.content,
+      ).map((result) => result.choice).toList();
+
+      filteredNotes.addAll(searchResult);
+
+      print('--- $searchQuery');
+      searchResult.forEachIndexed((index, r) => print('$index) ${r.title}'));
+    } else {
+      filteredNotes.addAll(state.notesParsed);
+    }
+
+    emit(state.copyWith(notesFiltered: filteredNotes));
   }
 
   void setSyncStatus({required bool isOnline}) => emit(state.copyWith(isOnline: isOnline));
 
-  void onDeleteNote({required String? id}) => _notesLocalRepository.deleteNote(noteID: id);
+  onNoteDelete(Note note) {
+    final updatedNote = note.copyWith(status: NoteStatus.archived, dateUpdated: DateTime.now().toUtc());
+    _notesLocalRepository.addOrUpdateNote(updatedNote);
+  }
 
   Future<void> onRefreshNotes() async {
-    _syncNotes();
     _notesRemoteRepository.loadNotesRemote();
   }
 
   @override
   Future<void> close() async {
+    await _searchQuerySubject.close();
     await _notesLocalStreamSubscription?.cancel();
     await _notesRemoteStreamSubscription?.cancel();
     return super.close();

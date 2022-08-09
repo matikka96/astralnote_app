@@ -1,3 +1,4 @@
+import 'package:astralnote_app/core/ui/action_menu/action_menu.dart';
 import 'package:astralnote_app/infrastructure/notes_local_repository.dart';
 import 'package:astralnote_app/domain/note/note.dart';
 import 'package:astralnote_app/pages/view_note/cubit/view_note_cubit.dart';
@@ -12,7 +13,8 @@ class ViewNotePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ViewNoteCubit(notesLocalRepository: context.read<NotesLocalRepository>()),
+      create: (context) =>
+          ViewNoteCubit(notesLocalRepository: context.read<NotesLocalRepository>())..onInit(note: note),
       child: _Body(note: note),
     );
   }
@@ -28,18 +30,15 @@ class _Body extends StatelessWidget {
     final viewNoteCubit = context.read<ViewNoteCubit>();
     final contentController = TextEditingController(text: note.content);
     contentController.addListener(() {
-      viewNoteCubit.onNoteUpdate(note, content: contentController.text);
+      viewNoteCubit.onNoteUpdate(note, updatedContent: contentController.text);
     });
 
     return Scaffold(
       appBar: AppBar(
         actions: [
           IconButton(
-            onPressed: () {
-              viewNoteCubit.onNoteDelete(note);
-              Navigator.of(context).pop();
-            },
-            icon: const Icon(Icons.delete),
+            onPressed: () async => showActionMenu(context, actionMenu: ActionMenu.noteActions(context, note: note)),
+            icon: const Icon(Icons.more_horiz),
           ),
         ],
       ),

@@ -23,7 +23,7 @@ class NoteDataDTO with _$NoteDataDTO {
 
   factory NoteDataDTO.fromJson(Map<String, dynamic> json) => _$NoteDataDTOFromJson(json);
 
-  Note toDomain() {
+  Note toDomain({required NoteSource source}) {
     final parsedStatus = NoteStatus.values.firstWhereOrNull((noteStatus) => noteStatus.name == status);
 
     return Note(
@@ -33,6 +33,7 @@ class NoteDataDTO with _$NoteDataDTO {
       dateUpdated: dateUpdated != null ? DateTime.parse(dateUpdated!) : null,
       content: content,
       color: color,
+      source: source,
     );
   }
 }

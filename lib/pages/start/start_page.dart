@@ -1,3 +1,4 @@
+import 'package:astralnote_app/core/extensions/extensions.dart';
 import 'package:astralnote_app/router_service.dart';
 import 'package:flutter/material.dart';
 
@@ -6,6 +7,8 @@ class StartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(context.navigator.canPop());
+
     return Scaffold(
       appBar: AppBar(title: const Text('Welcome')),
       body: SafeArea(
@@ -13,11 +16,11 @@ class StartPage extends StatelessWidget {
           children: [
             const Placeholder(),
             MaterialButton(
-              onPressed: () => Navigator.of(context).pushNamed(Routes.login.name),
+              onPressed: () => context.navigator.pushNamed(Routes.login.name),
               child: const Text('Login', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
             MaterialButton(
-              onPressed: () => Navigator.of(context).pushNamed(Routes.signup.name),
+              onPressed: () => context.navigator.pushNamed(Routes.signup.name),
               child: const Text('Sign up'),
             ),
           ],
