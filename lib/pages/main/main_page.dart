@@ -59,35 +59,39 @@ class _Body extends StatelessWidget {
         return SafeArea(
           child: RefreshIndicator(
             onRefresh: () async => context.read<NotesCubit>().onRefreshNotes(),
-            child: CustomScrollView(
-              slivers: [
-                SliverList(
-                  delegate: SliverChildListDelegate(
-                    [
-                      ListTile(
-                        title: CupertinoSearchTextField(
-                          controller: searchController,
-                          onSuffixTap: () {
-                            searchController.clear();
-                            FocusScope.of(context).unfocus();
-                          },
-                        ),
-                      ),
-                      if (notes.isEmpty)
-                        ListTile(
-                          title: Text('No search results with "${searchController.text}"', textAlign: TextAlign.center),
-                        ),
-                    ],
-                  ),
-                ),
-                if (notes.isNotEmpty)
+            child: GestureDetector(
+              onPanDown: (_) => context.hideKeyboard,
+              child: CustomScrollView(
+                slivers: [
                   SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) => _ListItem(note: notes[index]),
-                      childCount: notes.length,
+                    delegate: SliverChildListDelegate(
+                      [
+                        ListTile(
+                          title: CupertinoSearchTextField(
+                            controller: searchController,
+                            onSuffixTap: () {
+                              searchController.clear();
+                              context.hideKeyboard;
+                            },
+                          ),
+                        ),
+                        if (notes.isEmpty)
+                          ListTile(
+                            title:
+                                Text('No search results with "${searchController.text}"', textAlign: TextAlign.center),
+                          ),
+                      ],
                     ),
                   ),
-              ],
+                  if (notes.isNotEmpty)
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => _ListItem(note: notes[index]),
+                        childCount: notes.length,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         );

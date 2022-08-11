@@ -1,3 +1,6 @@
+import 'package:astralnote_app/core/extensions/extensions.dart';
+import 'package:astralnote_app/core/ui/hybrid_button.dart';
+import 'package:astralnote_app/core/ui/hybrid_text_field.dart';
 import 'package:astralnote_app/global/blocks/auth/auth_cubit.dart';
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
 import 'package:flutter/material.dart';
@@ -10,54 +13,58 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final emailController = TextEditingController(text: '');
     final passwordController = TextEditingController(text: '');
-    final authCubit = BlocProvider.of<AuthCubit>(context);
+    final authCubit = context.read<AuthCubit>();
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Email'),
-              TextField(controller: emailController, ),
-              const SizedBox(height: 10),
-              const Text('Password'),
-              TextField(controller: passwordController),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+    switch (authCubit.state.authError) {
+      case AuthError.invalidCredentials:
+        context.showSnackbarMessage('Wrong credentials');
+        break;
+      default:
+    }
+
+    return BlocConsumer<AuthCubit, AuthState>(
+      listenWhen: (previous, current) => previous.authError != current.authError,
+      listener: (context, state) {
+        if (state.authError != null) context.showSnackbarMessage('Wrong credentials');
+      },
+      buildWhen: (previous, current) => previous.inProgress != current.inProgress,
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(title: const Text('Login')),
+          body: SafeArea(
+            child: GestureDetector(
+              onTap: () => context.hideKeyboard,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
                 children: [
-                  TextButton(
-                    onPressed: () async => authCubit.login('matvei.tikka@outlook.com', 'Test123!'),
-                    child: const Text('Quick'),
+                  const SizedBox(height: 10),
+                  ListTile(
+                    title: HybridTextField(controller: emailController, placeholder: 'Email'),
                   ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () => authCubit.login(emailController.value.text, passwordController.value.text),
-                    child: const Text('Login'),
+                  ListTile(
+                    title: HybridTextField(controller: passwordController, placeholder: 'Password'),
+                  ),
+                  const Divider(),
+                  ListTile(
+                    title: HybridButton(
+                      onPressed: () => authCubit.login(emailController.value.text, passwordController.value.text),
+                      isLoading: state.inProgress,
+                      text: 'Login',
+                    ),
+                  ),
+                  ListTile(
+                    title: HybridButton.secondary(
+                      onPressed: () async => authCubit.login('matvei.tikka@outlook.com', 'Test123!'),
+                      text: 'Quick',
+                    ),
                   ),
                 ],
               ),
-              BlocBuilder<AuthCubit, AuthState>(
-                builder: (context, state) {
-                  return state.maybeWhen(
-                    uninitialized: (inProgress, error) {
-                      if (inProgress) return const CircularProgressIndicator();
-                      if (error == AuthError.userNotExist) return const Text('Wrong email');
-                      if (error == AuthError.invalidCredentials) return const Text('Wrong password');
-                      if (error != null) return const Text('Something went wrong. Try again later.');
-                      return const Text('Please sign in :)');
-                    },
-                    orElse: () => const SizedBox(),
-                  );
-                },
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

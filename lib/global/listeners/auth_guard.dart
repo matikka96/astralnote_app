@@ -17,14 +17,17 @@ class AuthGuard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
-        state.maybeWhen(
-          authenticated: (_) => navigator.currentState?.pushNamedAndRemoveUntil(Routes.main.name, (route) => false),
-          unauthenticated: () {
+        switch (state.status) {
+          case AuthStatus.authenticated:
+            navigator.currentState?.pushNamedAndRemoveUntil(Routes.main.name, (route) => false);
+            break;
+          case AuthStatus.unauthenticated:
             navigator.currentState?.pushNamedAndRemoveUntil(Routes.start.name, (route) => false);
-            context.read<AuthCubit>().updateState(const AuthState.uninitialized(inProgress: false));
-          },
-          orElse: () {},
-        );
+            context.read<AuthCubit>().updateState(AuthState.uninitialized(inProgress: false));
+            break;
+          case AuthStatus.uninitialized:
+            break;
+        }
       },
       child: child,
     );

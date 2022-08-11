@@ -1,4 +1,5 @@
 import 'package:astralnote_app/core/extensions/extensions.dart';
+import 'package:astralnote_app/core/ui/hybrid_button.dart';
 import 'package:astralnote_app/router_service.dart';
 import 'package:flutter/material.dart';
 
@@ -15,13 +16,18 @@ class StartPage extends StatelessWidget {
         child: Column(
           children: [
             const Placeholder(),
-            MaterialButton(
-              onPressed: () => context.navigator.pushNamed(Routes.login.name),
-              child: const Text('Login', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Divider(),
+            ListTile(
+              title: HybridButton(
+                onPressed: () => context.navigator.pushNamed(Routes.login.name),
+                text: 'Login',
+              ),
             ),
-            MaterialButton(
-              onPressed: () => context.navigator.pushNamed(Routes.signup.name),
-              child: const Text('Sign up'),
+            ListTile(
+              title: HybridButton.secondary(
+                onPressed: () => context.navigator.pushNamed(Routes.signup.name),
+                text: 'Sign up',
+              ),
             ),
           ],
         ),

@@ -9,42 +9,41 @@ part 'auth_cubit.freezed.dart';
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _authRepository;
   final SecureStorageRepository _secureStorageRepository;
-  
+
   AuthCubit({
     required AuthRepository authRepository,
     required SecureStorageRepository secureStorageRepository,
   })  : _authRepository = authRepository,
         _secureStorageRepository = secureStorageRepository,
-        super(const AuthState.authenticated()) {
+        super(AuthState.initial()) {
     _init();
   }
-
 
   _init() async {
     final refreshToken = await _secureStorageRepository.getWithKey(StorageKeys.refreshToken);
     if (refreshToken != null) {
-      emit(const AuthState.authenticated());
+      emit(AuthState.authenticated());
     } else {
-      emit(const AuthState.unauthenticated());
+      emit(AuthState.unauthenticated());
     }
   }
 
   login(String email, String password) async {
-    emit(const AuthState.uninitialized(inProgress: true));
+    emit(AuthState.uninitialized(inProgress: true));
     final failureOrAuth = await _authRepository.login(email: email, password: password);
     failureOrAuth.fold(
       (error) => emit(AuthState.uninitialized(inProgress: false, authError: error)),
       (auth) async {
         await _secureStorageRepository.setWithKey(StorageKeys.refreshToken, auth.refreshToken);
         await _secureStorageRepository.setWithKey(StorageKeys.accessToken, auth.accessToken);
-        emit(const AuthState.authenticated());
+        emit(AuthState.authenticated());
       },
     );
   }
 
   logout() async {
     await _secureStorageRepository.removeWithKey(key: StorageKeys.refreshToken);
-    emit(const AuthState.unauthenticated());
+    emit(AuthState.unauthenticated());
   }
 
   printTokens() async {

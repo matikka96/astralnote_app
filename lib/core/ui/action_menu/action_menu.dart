@@ -6,6 +6,7 @@ import 'package:astralnote_app/domain/note/note.dart';
 import 'package:astralnote_app/global/blocks/notes/notes_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ActionMenu extends StatelessWidget {
@@ -76,6 +77,7 @@ class ActionMenu extends StatelessWidget {
 }
 
 Future<void> showActionMenu(BuildContext context, {required ActionMenu actionMenu}) {
+  HapticFeedback.selectionClick();
   if (Platform.isIOS) {
     return showCupertinoModalPopup(context: context, builder: (_) => actionMenu);
   } else {

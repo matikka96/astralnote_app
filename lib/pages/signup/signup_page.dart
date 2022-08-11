@@ -1,3 +1,6 @@
+import 'package:astralnote_app/core/extensions/extensions.dart';
+import 'package:astralnote_app/core/ui/hybrid_button.dart';
+import 'package:astralnote_app/core/ui/hybrid_text_field.dart';
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
 import 'package:astralnote_app/pages/signup/cubit/signup_cubit.dart';
 import 'package:flutter/material.dart';
@@ -33,18 +36,27 @@ class _Body extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Sign up')),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
+        child: GestureDetector(
+          onTap: () => context.hideKeyboard,
           child: Column(
+            mainAxisSize: MainAxisSize.max,
             children: [
-              TextField(controller: emailController),
+              const SizedBox(height: 10),
+              ListTile(
+                title: HybridTextField(controller: emailController, placeholder: 'Email'),
+              ),
+              ListTile(
+                title: HybridTextField(controller: passwordController, placeholder: 'Password'),
+              ),
+              ListTile(
+                title: HybridTextField(controller: passwordController, placeholder: 'Repeat password', readOnly: true),
+              ),
               const Divider(),
-              TextField(controller: passwordController),
-              const Divider(),
-              MaterialButton(
-                onPressed: () => signupCubit.signup(email: emailController.text, password: passwordController.text),
-                color: Colors.amber,
-                child: const Text('Sign up'),
+              ListTile(
+                title: HybridButton(
+                  onPressed: () => signupCubit.signup(email: emailController.text, password: passwordController.text),
+                  text: 'Sign up',
+                ),
               ),
             ],
           ),

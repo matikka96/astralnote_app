@@ -21,7 +21,11 @@ class MyApp extends StatelessWidget {
       splashFactory: NoSplash.splashFactory,
       shadowColor: Colors.transparent,
       appBarTheme: const AppBarTheme(elevation: 0),
-      inputDecorationTheme: const InputDecorationTheme(border: OutlineInputBorder(), isDense: true),
+      inputDecorationTheme: const InputDecorationTheme(
+        border: OutlineInputBorder(borderSide: BorderSide.none),
+        isDense: true,
+        filled: true,
+      ),
       snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating, shape: StadiumBorder()),
     );
 

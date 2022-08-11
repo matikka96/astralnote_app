@@ -1,5 +1,6 @@
 import 'package:astralnote_app/config.dart';
-import 'package:astralnote_app/infrastructure/auth_repository.dart';
+import 'package:astralnote_app/domain/auth/dto/auth_dto.dart';
+import 'package:astralnote_app/infrastructure/directus_connector_service.dart';
 import 'package:astralnote_app/infrastructure/secure_storage_repository.dart';
 import 'package:astralnote_app/modules/secure_storage_module.dart';
 import 'package:dio/dio.dart';
@@ -8,6 +9,7 @@ import 'package:dio/dio.dart';
 
 class DioModule {
   final dio = createDio();
+  final publicDio = Dio(BaseOptions(baseUrl: Config.backendUrl));
 
   DioModule._internal();
   static final _singleton = DioModule._internal();
@@ -27,11 +29,16 @@ class DioModule {
         onError: (DioError e, handler) async {
           if (e.response?.statusCode == 401) {
             final refreshToken = await secureStorageRepository.getWithKey(StorageKeys.refreshToken);
-            final failureOrAuth = await AuthRepository(secureStorageRepository: secureStorageRepository)
-                .refreshAccessToken(refreshToken: refreshToken.toString());
-            failureOrAuth.fold(
-              (_) => handler.reject(e), // // TODO: Trigger logout from here
-              (auth) async {
+            final directusAuthConnector = DirectusConnectorService.auth();
+            final body = {'refresh_token': refreshToken};
+            final rejectOrLogin = await directusAuthConnector.post(collection: 'refresh', body: body);
+            return rejectOrLogin.fold(
+              (error) => handler.reject(e), // TODO: Trigger logout from here
+              (authJson) async {
+                final authDTO = AuthDTO.fromJson(authJson);
+                final auth = authDTO.toDomain();
+                await secureStorageRepository.setWithKey(StorageKeys.accessToken, auth.accessToken.toString());
+                await secureStorageRepository.setWithKey(StorageKeys.refreshToken, auth.refreshToken.toString());
                 final retryRequest = await dio.request(
                   e.requestOptions.path,
                   data: e.requestOptions.data,

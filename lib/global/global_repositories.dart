@@ -1,4 +1,5 @@
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
+import 'package:astralnote_app/infrastructure/directus_connector_service.dart';
 import 'package:astralnote_app/infrastructure/network_monitor_repository.dart';
 import 'package:astralnote_app/infrastructure/notes_local_repository.dart';
 import 'package:astralnote_app/infrastructure/notes_remote_repository.dart';
@@ -16,27 +17,31 @@ class GlobalRepositories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final secureStorageRepository = SecureStorageRepository(secureStorageModule: SecureStorageModule());
+    final dioModule = DioModule();
+
+    final dataConnector = DirectusConnectorService(dio: dioModule.dio, endpoint: DirectusEndpoins.items);
+    final authConnector = DirectusConnectorService(dio: dioModule.publicDio, endpoint: DirectusEndpoins.auth);
+    final rolesConnector = DirectusConnectorService(dio: dioModule.publicDio, endpoint: DirectusEndpoins.roles);
 
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(
           create: (context) => AuthRepository(
-            // dioModule: DioModule(),
-            secureStorageRepository: secureStorageRepository,
+            authConnector: authConnector,
+            rolesConnector: rolesConnector,
           ),
         ),
         RepositoryProvider(
           create: (context) => NetworkMonitorRepository(connectivityModule: ConnectivityModule()),
         ),
         RepositoryProvider(
-          create: (context) => secureStorageRepository,
+          create: (context) => SecureStorageRepository(secureStorageModule: SecureStorageModule()),
         ),
         RepositoryProvider(
           create: (context) => NotesLocalRepository(),
         ),
         RepositoryProvider(
-          create: (context) => NotesRemoteRepository(dioModule: DioModule()),
+          create: (context) => NotesRemoteRepository(directusItemConnector: dataConnector),
         ),
       ],
       child: child,
