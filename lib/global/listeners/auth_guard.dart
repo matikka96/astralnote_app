@@ -1,4 +1,5 @@
 import 'package:astralnote_app/global/blocks/auth/auth_cubit.dart';
+import 'package:astralnote_app/infrastructure/auth_repository.dart';
 import 'package:astralnote_app/router_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,10 +24,8 @@ class AuthGuard extends StatelessWidget {
             break;
           case AuthStatus.unauthenticated:
             navigator.currentState?.pushNamedAndRemoveUntil(Routes.start.name, (route) => false);
-            context.read<AuthCubit>().updateState(AuthState.uninitialized(inProgress: false));
             break;
-          case AuthStatus.uninitialized:
-            break;
+          default:
         }
       },
       child: child,

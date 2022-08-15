@@ -1,22 +1,23 @@
 import 'package:astralnote_app/config.dart';
 import 'package:astralnote_app/domain/auth/dto/auth_dto.dart';
+import 'package:astralnote_app/infrastructure/auth_repository.dart';
 import 'package:astralnote_app/infrastructure/directus_connector_service.dart';
 import 'package:astralnote_app/infrastructure/secure_storage_repository.dart';
 import 'package:astralnote_app/modules/secure_storage_module.dart';
 import 'package:dio/dio.dart';
 
-// TODO: Use of repositories should be refactored
-
 class DioModule {
-  final dio = createDio();
-  final publicDio = Dio(BaseOptions(baseUrl: Config.backendUrl));
+  DioModule({
+    required AuthRepository authRepository,
+  }) : _authRepository = authRepository;
 
-  DioModule._internal();
-  static final _singleton = DioModule._internal();
-  factory DioModule() => _singleton;
+  final AuthRepository _authRepository;
 
-  static Dio createDio() {
-    final dio = Dio(BaseOptions(baseUrl: Config.backendUrl));
+  Dio get instance {
+    final dio = Dio(
+      BaseOptions(baseUrl: Config.backendUrl),
+    );
+
     final secureStorageRepository = SecureStorageRepository(secureStorageModule: SecureStorageModule());
 
     dio.interceptors.addAll([
@@ -33,7 +34,10 @@ class DioModule {
             final body = {'refresh_token': refreshToken};
             final rejectOrLogin = await directusAuthConnector.post(collection: 'refresh', body: body);
             return rejectOrLogin.fold(
-              (error) => handler.reject(e), // TODO: Trigger logout from here
+              (error) {
+                _authRepository.logout();
+                handler.reject(e);
+              },
               (authJson) async {
                 final authDTO = AuthDTO.fromJson(authJson);
                 final auth = authDTO.toDomain();

@@ -10,10 +10,12 @@ extension BuildContextExtension on BuildContext {
   void get hideKeyboard => FocusScope.of(this).unfocus();
 
   void showSnackbarMessage(String message) {
+    ScaffoldMessenger.of(this).hideCurrentSnackBar();
     ScaffoldMessenger.of(this).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void showSnackbarCustom({required Widget content}) {
+    ScaffoldMessenger.of(this).hideCurrentSnackBar();
     ScaffoldMessenger.of(this).showSnackBar(SnackBar(content: content));
   }
 }

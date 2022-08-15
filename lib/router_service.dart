@@ -1,4 +1,5 @@
 import 'package:astralnote_app/domain/note/note.dart';
+import 'package:astralnote_app/pages/account_created/account_created_page.dart';
 import 'package:astralnote_app/pages/login/login_page.dart';
 import 'package:astralnote_app/pages/main/main_page.dart';
 import 'package:astralnote_app/pages/profile/profile_page.dart';
@@ -10,6 +11,7 @@ import 'pages/view_note/view_note_page.dart';
 
 enum Routes {
   profile('/profile'),
+  accountCreated('/account-created'),
   login('/login'),
   signup('/signup'),
   note('/main/note'),
@@ -30,6 +32,8 @@ class RouterService {
     switch (route) {
       case Routes.profile:
         return const ProfilePage();
+      case Routes.accountCreated:
+        return const AccountCreatedPage();
       case Routes.login:
         return const LoginPage();
       case Routes.signup:

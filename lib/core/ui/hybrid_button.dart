@@ -38,20 +38,20 @@ class HybridButton extends StatelessWidget {
         Platform.isIOS ? CupertinoActivityIndicator(color: textColor) : LinearProgressIndicator(color: textColor);
     final content = isLoading ? loadingIndicator : Text(text);
 
-    if (Platform.isIOS) {
-      return CupertinoButton(
-        onPressed: isLoading ? () {} : onPressed,
-        color: buttonColor,
-        child: content,
-      );
-    } else {
-      return MaterialButton(
-        height: 50,
-        onPressed: isLoading ? () {} : onPressed,
-        color: buttonColor,
-        textColor: textColor,
-        child: content,
-      );
-    }
+    final iosButton = CupertinoButton(
+      onPressed: isLoading ? () {} : onPressed,
+      color: buttonColor,
+      child: content,
+    );
+
+    final materialButton = MaterialButton(
+      height: 50,
+      onPressed: isLoading ? () {} : onPressed,
+      color: buttonColor,
+      textColor: textColor,
+      child: content,
+    );
+
+    return ListTile(title: Platform.isIOS ? iosButton : materialButton);
   }
 }

@@ -15,13 +15,6 @@ part 'notes_state.dart';
 part 'notes_cubit.freezed.dart';
 
 class NotesCubit extends Cubit<NotesState> {
-  final NotesLocalRepository _notesLocalRepository;
-  final NotesRemoteRepository _notesRemoteRepository;
-  StreamSubscription<Either<NotesLocalFailure, List<Note>>>? _notesLocalStreamSubscription;
-  StreamSubscription<Either<GenericError, List<Note>>>? _notesRemoteStreamSubscription;
-  // BehaviorSubject<String>? _notesSearchSubject;
-  final _searchQuerySubject = BehaviorSubject<String>();
-
   NotesCubit({
     required NotesLocalRepository notesLocalRepository,
     required NotesRemoteRepository notesRemoteRepository,
@@ -39,6 +32,11 @@ class NotesCubit extends Cubit<NotesState> {
       _onFilterNotes();
     });
   }
+  final NotesLocalRepository _notesLocalRepository;
+  final NotesRemoteRepository _notesRemoteRepository;
+  StreamSubscription<Either<NotesLocalFailure, List<Note>>>? _notesLocalStreamSubscription;
+  StreamSubscription<Either<GenericError, List<Note>>>? _notesRemoteStreamSubscription;
+  final _searchQuerySubject = BehaviorSubject<String>();
 
   Future<void> _onNotesLocalChanged(Either<NotesLocalFailure, List<Note>> failureOrNotes) async {
     failureOrNotes.fold(

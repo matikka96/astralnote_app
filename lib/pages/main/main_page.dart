@@ -1,9 +1,10 @@
 import 'package:astralnote_app/core/extensions/extensions.dart';
 import 'package:astralnote_app/core/ui/action_menu/action_menu.dart';
+import 'package:astralnote_app/core/ui/hybrid_scroll_bar.dart';
+import 'package:astralnote_app/core/ui/hybrid_search_field.dart';
 import 'package:astralnote_app/global/blocks/notes/notes_cubit.dart';
 import 'package:astralnote_app/domain/note/note.dart';
 import 'package:astralnote_app/router_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,7 +24,7 @@ class MainPage extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            onPressed: () => context.showSnackbarMessage('test'),
+            onPressed: () {},
             icon: const Icon(Icons.sort),
           ),
         ],
@@ -59,22 +60,14 @@ class _Body extends StatelessWidget {
         return SafeArea(
           child: RefreshIndicator(
             onRefresh: () async => context.read<NotesCubit>().onRefreshNotes(),
-            child: GestureDetector(
-              onPanDown: (_) => context.hideKeyboard,
+            child: HybridScrollbar(
               child: CustomScrollView(
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 slivers: [
                   SliverList(
                     delegate: SliverChildListDelegate(
                       [
-                        ListTile(
-                          title: CupertinoSearchTextField(
-                            controller: searchController,
-                            onSuffixTap: () {
-                              searchController.clear();
-                              context.hideKeyboard;
-                            },
-                          ),
-                        ),
+                        HybridSearchField(controller: searchController),
                         if (notes.isEmpty)
                           ListTile(
                             title:

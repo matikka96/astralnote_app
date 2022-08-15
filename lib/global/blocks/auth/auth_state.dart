@@ -1,7 +1,5 @@
 part of 'auth_cubit.dart';
 
-enum AuthStatus { unauthenticated, authenticated, uninitialized }
-
 @freezed
 class AuthState with _$AuthState {
   const factory AuthState({

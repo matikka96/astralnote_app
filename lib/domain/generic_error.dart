@@ -1,3 +1,3 @@
-// TODO: Make this an enchanted enum and create DioError extension for parsing error automatically?
+// TODO: Rename to DirectusError & move to DirectusConnectorService
 
-enum GenericError { tokenExpired, forbidden, notFound, unexpected }
+enum GenericError { tokenExpired, forbidden, notFound, unexpected, failedValidation }

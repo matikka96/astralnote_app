@@ -44,6 +44,7 @@ class DirectusConnectorService {
   Future<Either<GenericError, dynamic>> post({required String collection, required dynamic body}) async {
     try {
       final response = await _dio.post('/$_endpoint/$collection', data: body);
+      if (response.statusCode == 204) return right(const GetOneDirectusItemDTO(data: ""));
       final responseDTO = GetOneDirectusItemDTO.fromJson(response.data);
       return right(responseDTO.data);
     } catch (responseError) {
@@ -68,6 +69,7 @@ class DirectusConnectorService {
   // Generic error parser for Directus
   GenericError _parseResponseError(responseError) {
     GenericError error = GenericError.unexpected;
+    if (responseError is DioError && responseError.response?.statusCode == 400) error = GenericError.failedValidation;
     if (responseError is DioError && responseError.response?.statusCode == 401) error = GenericError.tokenExpired;
     if (responseError is DioError && responseError.response?.statusCode == 403) error = GenericError.forbidden;
     return error;

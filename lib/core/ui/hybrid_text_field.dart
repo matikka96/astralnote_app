@@ -8,27 +8,54 @@ class HybridTextField extends StatelessWidget {
     required this.controller,
     this.placeholder,
     this.readOnly = false,
+    this.isForPassword = false,
     Key? key,
   }) : super(key: key);
 
   final TextEditingController controller;
   final String? placeholder;
   final bool readOnly;
+  final bool isForPassword;
 
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
-      return CupertinoTextField(
-        controller: controller,
-        placeholder: placeholder,
-        padding: const EdgeInsets.all(12),
-        readOnly: readOnly,
+      return ListTile(
+        title: Padding(
+          padding: const EdgeInsets.only(top: 5),
+          child: placeholder != null ? Text(placeholder!) : null,
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 5),
+          child: CupertinoTextField(
+            controller: controller,
+            padding: const EdgeInsets.all(10),
+            readOnly: readOnly,
+            obscureText: isForPassword,
+            enableSuggestions: !isForPassword,
+            autocorrect: false,
+            clearButtonMode: OverlayVisibilityMode.editing,
+          ),
+        ),
       );
     } else {
-      return TextField(
-        controller: controller,
-        readOnly: readOnly,
-        decoration: InputDecoration(label: Text(placeholder ?? '')),
+      return ListTile(
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 5),
+          child: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              label: placeholder != null ? Text(placeholder!) : null,
+              suffixIcon: controller.text.isNotEmpty
+                  ? GestureDetector(onTap: () => controller.clear(), child: const Icon(Icons.close))
+                  : null,
+            ),
+            readOnly: readOnly,
+            obscureText: isForPassword,
+            enableSuggestions: !isForPassword,
+            autocorrect: !isForPassword,
+          ),
+        ),
       );
     }
   }

@@ -1,5 +1,6 @@
+import 'package:astralnote_app/core/extensions/extensions.dart';
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'signup_state.dart';
@@ -8,21 +9,35 @@ part 'signup_cubit.freezed.dart';
 class SignupCubit extends Cubit<SignupState> {
   SignupCubit({
     required this.authRepository,
-  }) : super(const SignupState.idle());
+  }) : super(SignupState.initial());
 
   final AuthRepository authRepository;
 
-  signup({required String email, required String password}) async {
+  void onUpdateEmailField(String newValue) => emit(state.copyWith(email: newValue));
+
+  void onUpdatePasswordField(String newValue) => emit(state.copyWith(password: newValue));
+
+  void onUpdatePasswordRepeatedField(String newValue) => emit(state.copyWith(passwordRepeated: newValue));
+
+  void test() => emit(state.copyWith(status: SingupStatus.success));
+
+  onSignup({required String email, required String password}) async {
     final failureOrRoleId = await authRepository.getUserRoleId();
     await failureOrRoleId.fold(
-      (l) => null,
+      (l) {},
       (roleId) async {
         final failureOrSignup = await authRepository.signup(email: email, password: password, roleId: roleId);
         failureOrSignup.fold(
-          (error) => error == AuthError.userAlreadyExist
-              ? emit(const SignupState.userAlreadyExist())
-              : emit(const SignupState.failure()),
-          (_) => emit(const SignupState.success()),
+          (authError) {
+            switch (authError) {
+              case AuthError.userAlreadyExist:
+                emit(state.copyWith(status: SingupStatus.userAlreadyExist));
+                break;
+              default:
+                emit(state.copyWith(status: SingupStatus.failure));
+            }
+          },
+          (_) => emit(state.copyWith(status: SingupStatus.success)),
         );
       },
     );

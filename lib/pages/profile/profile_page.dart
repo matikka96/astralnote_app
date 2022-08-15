@@ -7,7 +7,8 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authCubit = BlocProvider.of<AuthCubit>(context);
+    final authCubit = context.read<AuthCubit>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
@@ -17,15 +18,15 @@ class ProfilePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             MaterialButton(
-              onPressed: () => authCubit.deleteAccessToken(),
+              onPressed: () => authCubit.onBreakAccess(),
               child: const Text('Break access'),
             ),
             MaterialButton(
-              onPressed: () => authCubit.printTokens(),
+              onPressed: () => authCubit.onPrintTokens(),
               child: const Text('Print tokens'),
             ),
             MaterialButton(
-              onPressed: () => authCubit.logout(),
+              onPressed: () => authCubit.onLogout(),
               child: const Text('Logout'),
             ),
           ],

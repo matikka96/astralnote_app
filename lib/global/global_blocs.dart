@@ -5,7 +5,6 @@ import 'package:astralnote_app/infrastructure/auth_repository.dart';
 import 'package:astralnote_app/infrastructure/network_monitor_repository.dart';
 import 'package:astralnote_app/infrastructure/notes_local_repository.dart';
 import 'package:astralnote_app/infrastructure/notes_remote_repository.dart';
-import 'package:astralnote_app/infrastructure/secure_storage_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,7 +21,6 @@ class GlobalBlocs extends StatelessWidget {
           lazy: false,
           create: (_) => AuthCubit(
             authRepository: context.read<AuthRepository>(),
-            secureStorageRepository: context.read<SecureStorageRepository>(),
           ),
         ),
         BlocProvider<ConnectivityCubit>(

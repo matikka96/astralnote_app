@@ -13,22 +13,23 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
   static final navigatorKey = GlobalKey<NavigatorState>();
 
+  static const primaryColor = Colors.purple;
+  static final theme = ThemeData(
+    primarySwatch: primaryColor,
+    splashFactory: NoSplash.splashFactory,
+    shadowColor: Colors.transparent,
+    appBarTheme: const AppBarTheme(elevation: 0),
+    tooltipTheme: const TooltipThemeData(triggerMode: TooltipTriggerMode.manual),
+    inputDecorationTheme: const InputDecorationTheme(
+      border: OutlineInputBorder(borderSide: BorderSide.none),
+      isDense: true,
+      filled: true,
+    ),
+    snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating, shape: StadiumBorder()),
+  );
+
   @override
   Widget build(BuildContext context) {
-    // TODO: Move theme object before build method in production
-    final theme = ThemeData(
-      primarySwatch: Colors.purple,
-      splashFactory: NoSplash.splashFactory,
-      shadowColor: Colors.transparent,
-      appBarTheme: const AppBarTheme(elevation: 0),
-      inputDecorationTheme: const InputDecorationTheme(
-        border: OutlineInputBorder(borderSide: BorderSide.none),
-        isDense: true,
-        filled: true,
-      ),
-      snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating, shape: StadiumBorder()),
-    );
-
     return GlobalRepositories(
       child: GlobalBlocs(
         child: GlobalListeners(

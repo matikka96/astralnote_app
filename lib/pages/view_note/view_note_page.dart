@@ -43,14 +43,11 @@ class _Body extends StatelessWidget {
         ],
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: TextField(
-            autofocus: note.content.isEmpty ? true : false,
-            controller: contentController,
-            maxLines: 1000,
-            decoration: const InputDecoration(border: InputBorder.none),
-          ),
+        child: TextField(
+          autofocus: note.content.isEmpty ? true : false,
+          controller: contentController,
+          maxLines: 1000,
+          decoration: const InputDecoration(border: InputBorder.none),
         ),
       ),
     );
