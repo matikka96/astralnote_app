@@ -7,6 +7,7 @@ class NotesState with _$NotesState {
     required bool isSyncing,
     required bool isOnline,
     required String searchQuery,
+    required NotesSortOrder sortOrder,
     required List<Note>? notesLocal,
     required List<Note>? notesRemote,
     required List<Note> notesParsed, // Do we need this?
@@ -22,6 +23,7 @@ class NotesState with _$NotesState {
       isSyncing: false,
       isOnline: false,
       searchQuery: '',
+      sortOrder: NotesSortOrder.dateEdited,
       notesLocal: null,
       notesRemote: null,
       notesParsed: [],
@@ -29,13 +31,29 @@ class NotesState with _$NotesState {
     );
   }
 
-  bool get canSync => isOnline && notesLocal != null && notesRemote != null;
+  bool get canSync => notesLocal != null && notesRemote != null;
 
   List<Note> get notesPublished {
-    return notesParsed.where((note) => note.status == NoteStatus.published).toList();
+    final published = notesParsed.where((note) => note.status == NoteStatus.published).toList();
+    List<Note> publishedAndSorted = [];
+    switch (sortOrder) {
+      case NotesSortOrder.dateEdited:
+        publishedAndSorted = published.sorted((a, b) => a.isMoreRecentThan(b) ? -1 : 1);
+        break;
+      case NotesSortOrder.dateCreated:
+        publishedAndSorted = published.sorted((a, b) => a.dateCreated.isAfter(b.dateCreated) ? -1 : 1);
+        break;
+      case NotesSortOrder.title:
+        publishedAndSorted = published.sortedBy((note) => note.title.toLowerCase());
+        break;
+    }
+    return publishedAndSorted;
   }
 
   List<Note> get notesRemoved {
-    return notesParsed.where((note) => note.status == NoteStatus.archived).toList();
+    return notesParsed
+        .where((note) => note.status == NoteStatus.archived)
+        .toList()
+        .sorted((a, b) => a.isMoreRecentThan(b) ? -1 : 1);
   }
 }

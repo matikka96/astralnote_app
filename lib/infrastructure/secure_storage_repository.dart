@@ -1,7 +1,7 @@
 import 'package:astralnote_app/modules/secure_storage_module.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-enum StorageKeys { refreshToken, accessToken }
+enum StorageKeys { refreshToken, accessToken, notesSortOrder, appTheme }
 
 class SecureStorageRepository {
   SecureStorageRepository({

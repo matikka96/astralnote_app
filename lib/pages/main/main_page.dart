@@ -1,11 +1,13 @@
 import 'package:astralnote_app/core/extensions/extensions.dart';
 import 'package:astralnote_app/core/ui/action_menu/action_menu.dart';
+import 'package:astralnote_app/core/ui/custom_divider.dart';
 import 'package:astralnote_app/core/ui/hybrid_scroll_bar.dart';
 import 'package:astralnote_app/core/ui/hybrid_search_field.dart';
 import 'package:astralnote_app/global/blocks/notes/notes_cubit.dart';
 import 'package:astralnote_app/domain/note/note.dart';
 import 'package:astralnote_app/router_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MainPage extends StatelessWidget {
@@ -43,6 +45,7 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.read<NotesCubit>().onRefreshNotes();
     final searchController = TextEditingController(text: '');
     searchController.addListener(() {
       context.read<NotesCubit>().onUpdateSearchQuery(searchController.text);
@@ -56,10 +59,14 @@ class _Body extends StatelessWidget {
         if (state.isFailure != null) return const Center(child: Text('Error'));
         if (state.notesParsed.isEmpty) return const Center(child: Text('No notes created'));
 
-        final notes = state.notesFiltered.where((note) => note.status == NoteStatus.published).toList();
+        final notes = state.notesPublished;
+
         return SafeArea(
           child: RefreshIndicator(
-            onRefresh: () async => context.read<NotesCubit>().onRefreshNotes(),
+            onRefresh: () async {
+              HapticFeedback.selectionClick();
+              await context.read<NotesCubit>().onRefreshNotes();
+            },
             child: HybridScrollbar(
               child: CustomScrollView(
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -70,8 +77,10 @@ class _Body extends StatelessWidget {
                         HybridSearchField(controller: searchController),
                         if (notes.isEmpty)
                           ListTile(
-                            title:
-                                Text('No search results with "${searchController.text}"', textAlign: TextAlign.center),
+                            title: Text(
+                              'No search results with "${searchController.text}"',
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                       ],
                     ),
@@ -105,9 +114,13 @@ class _ListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Divider(height: 0),
+        CustomDivider.list(),
         ListTile(
-          onLongPress: () async => showActionMenu(context, actionMenu: ActionMenu.noteActions(context, note: note)),
+          onLongPress: () async => showActionMenu(
+            context,
+            actionMenu: ActionMenu.noteActions(context, note: note),
+            vibrate: true,
+          ),
           onTap: () => Navigator.pushNamed(context, Routes.note.name, arguments: note),
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -59,8 +59,13 @@ class NotesLocalRepository {
     try {
       final notesFile = await _localNotesFile;
       final failureOrNotes = _notesController.stream.value;
-      final notes = failureOrNotes.fold((_) => null, (notes) => notes.map((note) => note.toJson()).toList());
-      await notesFile.writeAsString(json.encode(notes));
+      failureOrNotes.fold(
+        (_) {},
+        (notes) async {
+          final notesJson = notes.map((note) => note.toJson()).toList();
+          await notesFile.writeAsString(json.encode(notesJson));
+        },
+      );
     } catch (e) {
       _notesController.add(left(NotesLocalFailure.ioError));
     }
@@ -108,5 +113,10 @@ class NotesLocalRepository {
         _notesController.add(right(updatedNotes));
       },
     );
+  }
+
+  void dispose() {
+    final List<Note> emptyNotes = [];
+    _notesController.add(right(emptyNotes));
   }
 }

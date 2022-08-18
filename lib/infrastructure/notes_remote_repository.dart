@@ -66,4 +66,9 @@ class NotesRemoteRepository {
       (newNoteJson) {}, // Do something with newNoteJson
     );
   }
+
+  void dispose() {
+    final List<Note> emptyNotes = [];
+    _notesRemoteController.add(right(emptyNotes));
+  }
 }

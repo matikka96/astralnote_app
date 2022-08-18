@@ -5,6 +5,8 @@ extension BuildContextExtension on BuildContext {
 
   ThemeData get theme => Theme.of(this);
 
+  EdgeInsets get safeAreaPadding => MediaQuery.of(this).viewPadding;
+
   bool get hasActiveParentRoute => ModalRoute.of(this)?.canPop ?? false;
 
   void get hideKeyboard => FocusScope.of(this).unfocus();

@@ -19,16 +19,18 @@ class AuthCubit extends Cubit<AuthState> {
 
   StreamSubscription<AuthStatus>? _isAuthenticatedSubscrption;
 
-  onLogout() async => _authRepository.logout();
+  Future<void> onLogout() => _authRepository.logout();
 
   _setAuthStatus(AuthStatus authStatus) async {
     emit(state.copyWith(status: authStatus));
-    if (authStatus == AuthStatus.unauthenticated) emit(state.copyWith(status: AuthStatus.uninitialized));
+    if (authStatus == AuthStatus.unauthenticated) {
+      emit(state.copyWith(status: AuthStatus.uninitialized));
+    }
   }
 
-  onPrintTokens() async => _authRepository.printTokens();
+  Future<void> onPrintTokens() => _authRepository.printTokens();
 
-  onBreakAccess() async => _authRepository.breakAccess();
+  Future<void> onBreakAccess() => _authRepository.breakAccess();
 
   @override
   Future<void> close() async {

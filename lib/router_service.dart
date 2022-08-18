@@ -5,6 +5,7 @@ import 'package:astralnote_app/pages/main/main_page.dart';
 import 'package:astralnote_app/pages/profile/profile_page.dart';
 import 'package:astralnote_app/pages/signup/signup_page.dart';
 import 'package:astralnote_app/pages/start/start_page.dart';
+import 'package:astralnote_app/pages/webview/webview_page.dart';
 import 'package:flutter/material.dart';
 
 import 'pages/view_note/view_note_page.dart';
@@ -12,6 +13,7 @@ import 'pages/view_note/view_note_page.dart';
 enum Routes {
   profile('/profile'),
   accountCreated('/account-created'),
+  webview('/webview'),
   login('/login'),
   signup('/signup'),
   note('/main/note'),
@@ -45,6 +47,11 @@ class RouterService {
         return const MainPage();
       case Routes.start:
         return const StartPage();
+      case Routes.webview:
+        final args = settings.arguments as Map<String, String>;
+        final url = args['url']!;
+        final title = args['title']!;
+        return WebviewPage(url: url, title: title);
     }
   }
 }

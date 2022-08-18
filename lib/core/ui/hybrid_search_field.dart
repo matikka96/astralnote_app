@@ -18,6 +18,7 @@ class HybridSearchField extends StatelessWidget {
       return ListTile(
         title: CupertinoSearchTextField(
           controller: controller,
+          placeholder: 'Search notes',
           onSuffixTap: () {
             controller.clear();
             context.hideKeyboard;
@@ -31,8 +32,8 @@ class HybridSearchField extends StatelessWidget {
           child: TextField(
             controller: controller,
             decoration: InputDecoration(
-              // icon: const Icon(Icons.search),
-              // suffixIcon: Icon(Icons.close),
+              labelText: 'Search notes',
+              floatingLabelBehavior: FloatingLabelBehavior.never,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: controller.text.isNotEmpty
                   ? GestureDetector(onTap: () => controller.clear(), child: const Icon(Icons.close))

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:astralnote_app/domain/local_config/note_sort_order.dart';
 import 'package:astralnote_app/infrastructure/notes_local_repository.dart';
 import 'package:astralnote_app/infrastructure/notes_remote_repository.dart';
 import 'package:astralnote_app/domain/generic_error.dart';
@@ -27,7 +28,7 @@ class NotesCubit extends Cubit<NotesState> {
     _notesRemoteStreamSubscription = _notesRemoteRepository.failureOrNotesRemote
         // .debounceTime(const Duration(seconds: 1))
         .listen(_onNotesRemoteChanged);
-    _searchQuerySubject.debounceTime(const Duration(milliseconds: 500)).listen((searchInput) {
+    _searchQuerySubject.debounceTime(const Duration(milliseconds: 100)).listen((searchInput) {
       emit(state.copyWith(searchQuery: searchInput));
       _onFilterNotes();
     });
@@ -42,7 +43,7 @@ class NotesCubit extends Cubit<NotesState> {
     failureOrNotes.fold(
       (error) => emit(state.copyWith(isLoading: false, isFailure: error)),
       (notesLocal) {
-        if (state.notesRemote != null && state.notesRemote!.isNotEmpty) {
+        if (state.notesRemote != null) {
           emit(state.copyWith(isLoading: false, notesLocal: notesLocal));
           _syncNotes();
         } else {
@@ -61,7 +62,7 @@ class NotesCubit extends Cubit<NotesState> {
     failureOrNotes.fold(
       (error) {
         emit(state.copyWith(isLoading: false));
-      }, // , isFailure: error
+      },
       (notesRemote) {
         emit(state.copyWith(isLoading: false, notesRemote: notesRemote));
         _syncNotes();
@@ -151,9 +152,6 @@ class NotesCubit extends Cubit<NotesState> {
       ).map((result) => result.choice).toList();
 
       filteredNotes.addAll(searchResult);
-
-      print('--- $searchQuery');
-      searchResult.forEachIndexed((index, r) => print('$index) ${r.title}'));
     } else {
       filteredNotes.addAll(state.notesParsed);
     }
@@ -161,15 +159,27 @@ class NotesCubit extends Cubit<NotesState> {
     emit(state.copyWith(notesFiltered: filteredNotes));
   }
 
-  void setSyncStatus({required bool isOnline}) => emit(state.copyWith(isOnline: isOnline));
+  void onOnlineStatusChanged({required bool isOnline}) {
+    emit(state.copyWith(isOnline: isOnline));
+  }
 
-  onNoteDelete(Note note) {
+  void onNoteDelete(Note note) {
     final updatedNote = note.copyWith(status: NoteStatus.archived, dateUpdated: DateTime.now().toUtc());
     _notesLocalRepository.addOrUpdateNote(updatedNote);
   }
 
   Future<void> onRefreshNotes() async {
-    _notesRemoteRepository.loadNotesRemote();
+    await _notesRemoteRepository.loadNotesRemote();
+  }
+
+  void onUpdateSortOrder({required NotesSortOrder updatedSortOrder}) {
+    emit(state.copyWith(sortOrder: updatedSortOrder));
+  }
+
+  void onDispose() {
+    emit(NotesState.initial());
+    _notesLocalRepository.dispose();
+    _notesRemoteRepository.dispose();
   }
 
   @override
@@ -177,6 +187,7 @@ class NotesCubit extends Cubit<NotesState> {
     await _searchQuerySubject.close();
     await _notesLocalStreamSubscription?.cancel();
     await _notesRemoteStreamSubscription?.cancel();
+    onDispose();
     return super.close();
   }
 }

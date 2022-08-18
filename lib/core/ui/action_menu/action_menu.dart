@@ -76,8 +76,8 @@ class ActionMenu extends StatelessWidget {
   }
 }
 
-Future<void> showActionMenu(BuildContext context, {required ActionMenu actionMenu}) {
-  HapticFeedback.selectionClick();
+Future<void> showActionMenu(BuildContext context, {required ActionMenu actionMenu, bool vibrate = false}) {
+  if (vibrate) HapticFeedback.selectionClick();
   if (Platform.isIOS) {
     return showCupertinoModalPopup(context: context, builder: (_) => actionMenu);
   } else {
