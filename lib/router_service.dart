@@ -1,5 +1,6 @@
 import 'package:astralnote_app/domain/note/note.dart';
 import 'package:astralnote_app/pages/account_created/account_created_page.dart';
+import 'package:astralnote_app/pages/deleted_notes/deleted_notes_page.dart';
 import 'package:astralnote_app/pages/login/login_page.dart';
 import 'package:astralnote_app/pages/main/main_page.dart';
 import 'package:astralnote_app/pages/profile/profile_page.dart';
@@ -12,11 +13,12 @@ import 'pages/view_note/view_note_page.dart';
 
 enum Routes {
   profile('/profile'),
+  deletedNotes('/deleted-notes'),
   accountCreated('/account-created'),
   webview('/webview'),
   login('/login'),
   signup('/signup'),
-  note('/main/note'),
+  viewNote('/note'),
   main('/main'),
   start('/');
 
@@ -34,13 +36,15 @@ class RouterService {
     switch (route) {
       case Routes.profile:
         return const ProfilePage();
+      case Routes.deletedNotes:
+        return const DeletedNotesPage();
       case Routes.accountCreated:
         return const AccountCreatedPage();
       case Routes.login:
         return const LoginPage();
       case Routes.signup:
         return const SignupPage();
-      case Routes.note:
+      case Routes.viewNote:
         final noteData = settings.arguments as Note;
         return ViewNotePage(note: noteData);
       case Routes.main:

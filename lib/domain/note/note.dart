@@ -7,7 +7,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'note.freezed.dart';
 part 'note.g.dart';
 
-enum NoteStatus { published, draft, archived }
+enum NoteStatus { published, archived, deleted }
 
 enum NoteSource { local, remote }
 

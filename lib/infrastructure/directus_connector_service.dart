@@ -18,12 +18,15 @@ class DirectusConnectorService {
   final String _endpoint;
 
   factory DirectusConnectorService.auth() {
-    return DirectusConnectorService(dio: Dio(BaseOptions(baseUrl: Config.backendUrl)), endpoint: DirectusEndpoins.auth);
+    return DirectusConnectorService(
+      dio: Dio(BaseOptions(baseUrl: Config.backendUrl)),
+      endpoint: DirectusEndpoins.auth,
+    );
   }
 
-  Future<Either<GenericError, dynamic>> getOne({required String collection, required String itemId}) async {
+  Future<Either<GenericError, dynamic>> getOne({required String collection, String? itemId}) async {
     try {
-      final response = await _dio.get('/$_endpoint/$collection/$itemId');
+      final response = await _dio.get('/$_endpoint/$collection/${itemId != null ? '/$itemId' : ''}');
       final responseDTO = GetOneDirectusItemDTO.fromJson(response.data);
       return right(responseDTO.data);
     } catch (responseError) {
@@ -61,6 +64,15 @@ class DirectusConnectorService {
       final response = await _dio.patch('/$_endpoint/$collection/$id', data: body);
       final responseDTO = GetOneDirectusItemDTO.fromJson(response.data);
       return right(responseDTO.data);
+    } catch (responseError) {
+      return left(_parseResponseError(responseError));
+    }
+  }
+
+  Future<Either<GenericError, Unit>> delete({required String collection, required String id}) async {
+    try {
+      await _dio.delete('/$_endpoint/$collection/$id');
+      return right(unit);
     } catch (responseError) {
       return left(_parseResponseError(responseError));
     }

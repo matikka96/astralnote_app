@@ -32,14 +32,12 @@ class NotesLocalRepository {
   }
 
   void _loadNotes() async {
-    print('loadNotesLocal');
     try {
       final notesFile = await _localNotesFile;
       String? notesRaw = await notesFile.readAsString();
       List<Note> notes = [];
       try {
         final notesJson = json.decode(notesRaw);
-        // final notesDTO = NotesDTO.fromJson(notesJson);
         for (var noteJson in notesJson) {
           final note = Note.fromJson(noteJson).copyWith(source: NoteSource.local);
           notes.add(note);
@@ -104,12 +102,12 @@ class NotesLocalRepository {
     );
   }
 
-  deleteNote({required String? noteID}) {
-    final failureOrCleanedNotes = _notesController.stream.value;
-    failureOrCleanedNotes.fold(
-      (l) => print('Could not update list'),
+  void deleteNoteWithId(String noteId) {
+    final failureOrNoteDeleted = _notesController.stream.value;
+    failureOrNoteDeleted.fold(
+      (_) => print('Could not delete note'),
       (notes) {
-        final updatedNotes = [...notes]..removeWhere((note) => note.id == noteID);
+        final updatedNotes = [...notes]..removeWhere((note) => note.id == noteId);
         _notesController.add(right(updatedNotes));
       },
     );

@@ -13,7 +13,7 @@ class StartPage extends StatelessWidget {
     // TODO: Create a widget class for slides
     final slides = [
       ColoredBox(
-        color: Colors.purple.shade50,
+        color: context.theme.colorScheme.primary.withOpacity(0.1),
         child: const SizedBox.expand(
           child: Center(child: Text('slide 1')),
         ),

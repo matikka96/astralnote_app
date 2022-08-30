@@ -1,6 +1,8 @@
 import 'package:astralnote_app/core/extensions/extensions.dart';
+import 'package:astralnote_app/core/ui/action_menu/action_menu.dart';
 import 'package:astralnote_app/core/ui/custom_divider.dart';
 import 'package:astralnote_app/core/ui/hybrid_switch.dart';
+import 'package:astralnote_app/domain/note/note.dart';
 import 'package:astralnote_app/router_service.dart';
 import 'package:flutter/material.dart';
 
@@ -37,8 +39,29 @@ class CustomListItem extends StatelessWidget {
     this.trailing,
     this.color,
     this.onTap,
+    this.onLongPress,
     Key? key,
   }) : super(key: key);
+
+  factory CustomListItem.note(BuildContext context, {required Note note}) {
+    return CustomListItem(
+      onTap: () => context.navigator.pushNamed(Routes.viewNote.name, arguments: note),
+      onLongPress: () async => showActionMenu(
+        context,
+        actionMenu: note.status == NoteStatus.published
+            ? ActionMenu.noteActions(context, note: note)
+            : ActionMenu.deletedNoteActions(context, note: note),
+        vibrate: true,
+      ),
+      title: note.title,
+      subtitle: note.subTitle,
+      // // We will need this later
+      // trailing: Column(
+      //   mainAxisAlignment: MainAxisAlignment.center,
+      //   children: const [Icon(Icons.circle, size: 15)],
+      // ),
+    );
+  }
 
   factory CustomListItem.link(BuildContext context, {required String title, required String url}) {
     final obj = {'title': title, 'url': url};
@@ -49,6 +72,7 @@ class CustomListItem extends StatelessWidget {
       ),
       title: title,
       color: Colors.blue,
+      trailing: const Icon(Icons.arrow_forward_ios),
     );
   }
 
@@ -64,16 +88,19 @@ class CustomListItem extends StatelessWidget {
   final Widget? trailing;
   final Color? color;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
     final textColor = color ?? context.theme.listTileTheme.textColor;
 
     return ListTile(
+      enabled: onTap != null ? true : false,
+      onTap: onTap,
+      onLongPress: onLongPress,
       title: Text(title, style: TextStyle(color: textColor)),
       subtitle: subtitle != null ? Text(subtitle!) : null,
       trailing: trailing != null ? trailing! : null,
-      onTap: onTap,
     );
   }
 }

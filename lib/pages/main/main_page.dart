@@ -1,6 +1,6 @@
 import 'package:astralnote_app/core/extensions/extensions.dart';
-import 'package:astralnote_app/core/ui/action_menu/action_menu.dart';
 import 'package:astralnote_app/core/ui/custom_divider.dart';
+import 'package:astralnote_app/core/ui/custom_list.dart';
 import 'package:astralnote_app/core/ui/hybrid_scroll_bar.dart';
 import 'package:astralnote_app/core/ui/hybrid_search_field.dart';
 import 'package:astralnote_app/global/blocks/notes/notes_cubit.dart';
@@ -16,6 +16,7 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text('Astralnote'),
@@ -32,7 +33,7 @@ class MainPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.pushNamed(context, Routes.note.name, arguments: Note.create()),
+        onPressed: () => Navigator.pushNamed(context, Routes.viewNote.name, arguments: Note.create()),
         child: const Icon(Icons.add),
       ),
       body: const _Body(),
@@ -88,7 +89,12 @@ class _Body extends StatelessWidget {
                   if (notes.isNotEmpty)
                     SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) => _ListItem(note: notes[index]),
+                        (context, index) => Column(
+                          children: [
+                            CustomDivider.list(),
+                            CustomListItem.note(context, note: notes[index]),
+                          ],
+                        ),
                         childCount: notes.length,
                       ),
                     ),
@@ -98,38 +104,6 @@ class _Body extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _ListItem extends StatelessWidget {
-  const _ListItem({
-    required this.note,
-    Key? key,
-  }) : super(key: key);
-
-  final Note note;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        CustomDivider.list(),
-        ListTile(
-          onLongPress: () async => showActionMenu(
-            context,
-            actionMenu: ActionMenu.noteActions(context, note: note),
-            vibrate: true,
-          ),
-          onTap: () => Navigator.pushNamed(context, Routes.note.name, arguments: note),
-          trailing: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [Icon(Icons.circle, size: 15)],
-          ),
-          title: Text(note.title, softWrap: false),
-          subtitle: Text(note.subTitle, softWrap: false),
-        ),
-      ],
     );
   }
 }

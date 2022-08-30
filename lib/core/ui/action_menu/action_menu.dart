@@ -45,6 +45,30 @@ class ActionMenu extends StatelessWidget {
     );
   }
 
+  factory ActionMenu.deletedNoteActions(BuildContext context, {required Note note, bool popRoute = false}) {
+    return ActionMenu(
+      title: note.title,
+      actionItems: [
+        ActionMenuItem(
+          description: 'Restore',
+          icon: Icons.restore,
+          onPress: () {
+            context.read<NotesCubit>().onNoteRestore(note);
+            if (popRoute && context.hasActiveParentRoute) context.navigator.pop();
+          },
+        ),
+        ActionMenuItem(
+          description: 'Delete permanently',
+          icon: Icons.delete_outline,
+          onPress: () async {
+            await context.read<NotesCubit>().onNoteDeletePermanently(note);
+            if (popRoute && context.hasActiveParentRoute) context.navigator.pop();
+          },
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) {

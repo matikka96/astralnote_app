@@ -21,7 +21,10 @@ class ViewNotePage extends StatelessWidget {
 }
 
 class _Body extends StatelessWidget {
-  const _Body({required this.note, Key? key}) : super(key: key);
+  const _Body({
+    required this.note,
+    Key? key,
+  }) : super(key: key);
 
   final Note note;
 
@@ -37,13 +40,19 @@ class _Body extends StatelessWidget {
       appBar: AppBar(
         actions: [
           IconButton(
-            onPressed: () async => showActionMenu(context, actionMenu: ActionMenu.noteActions(context, note: note)),
+            onPressed: () async => showActionMenu(
+              context,
+              actionMenu: note.status == NoteStatus.published
+                  ? ActionMenu.noteActions(context, note: note)
+                  : ActionMenu.deletedNoteActions(context, note: note, popRoute: true),
+            ),
             icon: const Icon(Icons.more_horiz),
           ),
         ],
       ),
       body: SafeArea(
         child: TextField(
+          readOnly: note.status == NoteStatus.published ? false : true,
           autofocus: note.content.isEmpty ? true : false,
           controller: contentController,
           maxLines: 1000,

@@ -67,6 +67,14 @@ class NotesRemoteRepository {
     );
   }
 
+  Future<Either<GenericError, Unit>> deleteNoteWithId(String noteId) async {
+    final failureOrNoteDeleted = await _directusItemConnector.delete(collection: _collection, id: noteId);
+    return failureOrNoteDeleted.fold(
+      (error) => left(error),
+      (_) => right(unit),
+    );
+  }
+
   void dispose() {
     final List<Note> emptyNotes = [];
     _notesRemoteController.add(right(emptyNotes));

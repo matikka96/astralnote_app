@@ -111,7 +111,6 @@ class AuthRepository {
   }
 
   Future<void> breakAccess() async {
-    await _secureStorageRepository.removeWithKey(key: StorageKeys.accessToken);
     await _secureStorageRepository.removeWithKey(key: StorageKeys.refreshToken);
   }
 }

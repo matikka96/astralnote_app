@@ -39,7 +39,7 @@ class CustomDivider extends StatelessWidget {
         if (showBorder)
           Container(
             height: thickness,
-            margin: EdgeInsets.only(left: spacing),
+            margin: EdgeInsets.only(left: hasIndent ? spacing : 0),
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(width: thickness, color: context.theme.dividerColor),

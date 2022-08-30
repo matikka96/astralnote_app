@@ -11,7 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GlobalBlocs extends StatelessWidget {
-  const GlobalBlocs({required this.child, Key? key}) : super(key: key);
+  const GlobalBlocs({
+    required this.child,
+    Key? key,
+  }) : super(key: key);
 
   final Widget child;
 

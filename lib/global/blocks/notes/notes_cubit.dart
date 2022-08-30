@@ -60,9 +60,7 @@ class NotesCubit extends Cubit<NotesState> {
 
   Future<void> _onNotesRemoteChanged(Either<GenericError, List<Note>> failureOrNotes) async {
     failureOrNotes.fold(
-      (error) {
-        emit(state.copyWith(isLoading: false));
-      },
+      (error) => emit(state.copyWith(isLoading: false)),
       (notesRemote) {
         emit(state.copyWith(isLoading: false, notesRemote: notesRemote));
         _syncNotes();
@@ -140,8 +138,6 @@ class NotesCubit extends Cubit<NotesState> {
   _onFilterNotes() {
     final List<Note> filteredNotes = [];
 
-    // TODO: Perform sort here
-
     final searchQuery = state.searchQuery;
     if (searchQuery.isNotEmpty) {
       final searchResult = extractAllSorted<Note>(
@@ -163,9 +159,19 @@ class NotesCubit extends Cubit<NotesState> {
     emit(state.copyWith(isOnline: isOnline));
   }
 
+  void onNoteRestore(Note note) {
+    final updatedNote = note.copyWith(status: NoteStatus.published, dateUpdated: DateTime.now().toUtc());
+    _notesLocalRepository.addOrUpdateNote(updatedNote);
+  }
+
   void onNoteDelete(Note note) {
     final updatedNote = note.copyWith(status: NoteStatus.archived, dateUpdated: DateTime.now().toUtc());
     _notesLocalRepository.addOrUpdateNote(updatedNote);
+  }
+
+  Future<void> onNoteDeletePermanently(Note note) async {
+    await _notesRemoteRepository.deleteNoteWithId(note.id);
+    _notesLocalRepository.deleteNoteWithId(note.id);
   }
 
   Future<void> onRefreshNotes() async {
