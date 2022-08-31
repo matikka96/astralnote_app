@@ -9,6 +9,7 @@ class HybridTextField extends StatelessWidget {
     this.placeholder,
     this.readOnly = false,
     this.isForPassword = false,
+    this.inputType,
     Key? key,
   }) : super(key: key);
 
@@ -16,6 +17,7 @@ class HybridTextField extends StatelessWidget {
   final String? placeholder;
   final bool readOnly;
   final bool isForPassword;
+  final TextInputType? inputType;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +52,7 @@ class HybridTextField extends StatelessWidget {
                   ? GestureDetector(onTap: () => controller.clear(), child: const Icon(Icons.close))
                   : null,
             ),
+            keyboardType: inputType,
             readOnly: readOnly,
             obscureText: isForPassword,
             enableSuggestions: !isForPassword,

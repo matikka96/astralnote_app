@@ -70,7 +70,7 @@ class _Body extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               const SizedBox(height: 10),
-              HybridTextField(controller: emailController, placeholder: 'Email'),
+              HybridTextField(controller: emailController, placeholder: 'Email', inputType: TextInputType.emailAddress),
               HybridTextField(controller: passwordController, placeholder: 'Password', isForPassword: true),
             ],
           ),

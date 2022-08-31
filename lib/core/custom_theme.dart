@@ -13,7 +13,7 @@ class CustomTheme {
   static const _primarySwatch = _primaryColor;
   static const _splashFactory = NoSplash.splashFactory;
   static const _shadowColor = Colors.transparent;
-  static const _appBarTheme = AppBarTheme(elevation: 0, scrolledUnderElevation: 5);
+  static const _appBarTheme = AppBarTheme(elevation: 0, scrolledUnderElevation: 5, centerTitle: true);
   static const _tooltipTheme = TooltipThemeData(triggerMode: TooltipTriggerMode.manual);
   static const _inputDecorationTheme = InputDecorationTheme(
     border: OutlineInputBorder(borderSide: BorderSide.none),
@@ -21,7 +21,7 @@ class CustomTheme {
     filled: true,
   );
   static const _snackBarTheme = SnackBarThemeData(behavior: SnackBarBehavior.floating, shape: StadiumBorder());
-  static const _textButtonTheme = TextButtonThemeData(style: ButtonStyle(splashFactory: _splashFactory));
+  static const _floatingActionButtonTheme = FloatingActionButtonThemeData(elevation: 0, highlightElevation: 0);
 
   // Light theme
   static final lightTheme = ThemeData(
@@ -37,7 +37,7 @@ class CustomTheme {
     tooltipTheme: _tooltipTheme,
     inputDecorationTheme: _inputDecorationTheme,
     snackBarTheme: _snackBarTheme,
-    textButtonTheme: _textButtonTheme,
+    floatingActionButtonTheme: _floatingActionButtonTheme,
   );
 
   // Dark theme
@@ -54,7 +54,7 @@ class CustomTheme {
     tooltipTheme: _tooltipTheme,
     inputDecorationTheme: _inputDecorationTheme,
     snackBarTheme: _snackBarTheme,
-    textButtonTheme: _textButtonTheme,
+    floatingActionButtonTheme: _floatingActionButtonTheme,
     cupertinoOverrideTheme: const CupertinoThemeData(
       primaryColor: _primaryColor,
       textTheme: CupertinoTextThemeData(primaryColor: _onSecondaryColor),

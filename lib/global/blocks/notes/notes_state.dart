@@ -10,7 +10,6 @@ class NotesState with _$NotesState {
     required NotesSortOrder sortOrder,
     required List<Note>? notesLocal,
     required List<Note>? notesRemote,
-    required List<Note> notesParsed, // Do we need this?
     required List<Note> notesFiltered,
     NotesLocalFailure? isFailure,
   }) = _NotesState;
@@ -26,15 +25,14 @@ class NotesState with _$NotesState {
       sortOrder: NotesSortOrder.dateEdited,
       notesLocal: null,
       notesRemote: null,
-      notesParsed: [],
       notesFiltered: [],
     );
   }
 
-  bool get canSync => notesLocal != null && notesRemote != null;
+  bool get canSync => isOnline && notesLocal != null && notesRemote != null;
 
   List<Note> get notesPublished {
-    final published = notesParsed.where((note) => note.status == NoteStatus.published).toList();
+    final published = notesFiltered.where((note) => note.status == NoteStatus.published).toList();
     List<Note> publishedAndSorted = [];
     switch (sortOrder) {
       case NotesSortOrder.dateEdited:
@@ -51,7 +49,7 @@ class NotesState with _$NotesState {
   }
 
   List<Note> get notesRemoved {
-    return notesParsed
+    return notesFiltered
         .where((note) => note.status == NoteStatus.archived)
         .toList()
         .sorted((a, b) => a.isMoreRecentThan(b) ? -1 : 1);

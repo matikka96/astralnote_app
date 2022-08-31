@@ -26,7 +26,7 @@ class NotesCubit extends Cubit<NotesState> {
         .debounceTime(const Duration(milliseconds: 100))
         .listen(_onNotesLocalChanged);
     _notesRemoteStreamSubscription = _notesRemoteRepository.failureOrNotesRemote
-        // .debounceTime(const Duration(seconds: 1))
+        .debounceTime(const Duration(milliseconds: 100))
         .listen(_onNotesRemoteChanged);
     _searchQuerySubject.debounceTime(const Duration(milliseconds: 100)).listen((searchInput) {
       emit(state.copyWith(searchQuery: searchInput));
@@ -43,17 +43,8 @@ class NotesCubit extends Cubit<NotesState> {
     failureOrNotes.fold(
       (error) => emit(state.copyWith(isLoading: false, isFailure: error)),
       (notesLocal) {
-        if (state.notesRemote != null) {
-          emit(state.copyWith(isLoading: false, notesLocal: notesLocal));
-          _syncNotes();
-        } else {
-          emit(state.copyWith(
-            isLoading: false,
-            notesLocal: notesLocal,
-            notesParsed: notesLocal,
-            notesFiltered: notesLocal,
-          ));
-        }
+        emit(state.copyWith(isLoading: false, notesLocal: notesLocal, notesFiltered: notesLocal));
+        _iterateNotes();
       },
     );
   }
@@ -63,21 +54,19 @@ class NotesCubit extends Cubit<NotesState> {
       (error) => emit(state.copyWith(isLoading: false)),
       (notesRemote) {
         emit(state.copyWith(isLoading: false, notesRemote: notesRemote));
-        _syncNotes();
+        _iterateNotes();
       },
     );
   }
 
-  Future<void> _syncNotes() async {
+  Future<void> _iterateNotes() async {
     if (state.canSync) {
-      emit(state.copyWith(isSyncing: true));
-
-      final notesRemote = state.notesRemote!, notesLocal = state.notesLocal!;
-      final allNotes = [...notesRemote, ...notesLocal];
+      final allNotes = [...state.notesRemote!, ...state.notesLocal!];
 
       final List<Note> notesParsed = [],
           notesToUpdateRemote = [],
           notesToPushRemote = [],
+          notesToRemoveRemote = [],
           notesToUpdateLocal = [],
           notesToPushLocal = [],
           notesToRemoveLocal = [];
@@ -89,7 +78,11 @@ class NotesCubit extends Cubit<NotesState> {
           final remoteVersion = allNotes.firstWhereOrNull((n) => n.id == note.id && n.source == NoteSource.remote);
 
           if (localVersion != null && remoteVersion != null) {
-            if (localVersion.isMoreRecentThan(remoteVersion)) {
+            if (localVersion.status == NoteStatus.deleted) {
+              notesToRemoveLocal.add(localVersion);
+              notesToRemoveRemote.add(remoteVersion);
+              notesParsed.add(localVersion);
+            } else if (localVersion.isMoreRecentThan(remoteVersion)) {
               notesToUpdateRemote.add(localVersion);
               notesParsed.add(localVersion);
             } else if (remoteVersion.isMoreRecentThan(localVersion)) {
@@ -102,7 +95,10 @@ class NotesCubit extends Cubit<NotesState> {
             notesToPushLocal.add(remoteVersion!);
             notesParsed.add(remoteVersion);
           } else if (remoteVersion == null) {
-            if (localVersion.isQualifiedForDeletion) {
+            if (localVersion.status == NoteStatus.deleted) {
+              notesToRemoveLocal.add(localVersion);
+              notesParsed.add(localVersion);
+            } else if (localVersion.isQualifiedForDeletion) {
               notesToRemoveLocal.add(localVersion);
             } else {
               notesToPushRemote.add(localVersion);
@@ -112,21 +108,23 @@ class NotesCubit extends Cubit<NotesState> {
         }
       }
 
-      emit(state.copyWith(
-        notesParsed: notesParsed,
-        notesFiltered: notesParsed,
-      ));
+      // Sync notes with cloud if needed & possible
+      if (notesToPushRemote.isNotEmpty || notesToUpdateRemote.isNotEmpty || notesToRemoveRemote.isNotEmpty) {
+        emit(state.copyWith(isSyncing: true));
+        await _notesRemoteRepository.createMultipleNotes(notesToPushRemote);
+        await _notesRemoteRepository.updateMultipleNotes(notesToUpdateRemote);
+        await _notesRemoteRepository.deleteNotesWithIds(notesToRemoveRemote);
+        await _notesRemoteRepository.loadNotesRemote();
+      } else {
+        emit(state.copyWith(isSyncing: false));
+      }
 
+      // Update local notes up to date
       for (var note in [...notesToPushLocal, ...notesToUpdateLocal]) {
         _notesLocalRepository.addOrUpdateNote(note);
       }
-      await _notesRemoteRepository.createMultipleNotes(notesToPushRemote);
-      await _notesRemoteRepository.updateMultipleNotes(notesToUpdateRemote);
-
-      if (notesToPushRemote.isEmpty || notesToUpdateRemote.isEmpty) {
-        emit(state.copyWith(isSyncing: false));
-      } else {
-        await _notesRemoteRepository.loadNotesRemote();
+      for (var note in notesToRemoveLocal) {
+        _notesLocalRepository.deleteNoteWithId(note.id);
       }
     }
   }
@@ -142,14 +140,13 @@ class NotesCubit extends Cubit<NotesState> {
     if (searchQuery.isNotEmpty) {
       final searchResult = extractAllSorted<Note>(
         query: searchQuery,
-        choices: state.notesParsed.where((note) => note.status == NoteStatus.published).toList(),
+        choices: state.notesLocal!.where((note) => note.status == NoteStatus.published).toList(),
         cutoff: 50,
         getter: (note) => note.content,
       ).map((result) => result.choice).toList();
-
       filteredNotes.addAll(searchResult);
     } else {
-      filteredNotes.addAll(state.notesParsed);
+      filteredNotes.addAll(state.notesLocal!);
     }
 
     emit(state.copyWith(notesFiltered: filteredNotes));
@@ -159,22 +156,12 @@ class NotesCubit extends Cubit<NotesState> {
     emit(state.copyWith(isOnline: isOnline));
   }
 
-  void onNoteRestore(Note note) {
-    final updatedNote = note.copyWith(status: NoteStatus.published, dateUpdated: DateTime.now().toUtc());
+  void onChangeNoteStatus({required Note note, required NoteStatus newNoteStatus}) {
+    final updatedNote = note.copyWith(status: newNoteStatus, dateUpdated: DateTime.now().toUtc());
     _notesLocalRepository.addOrUpdateNote(updatedNote);
   }
 
-  void onNoteDelete(Note note) {
-    final updatedNote = note.copyWith(status: NoteStatus.archived, dateUpdated: DateTime.now().toUtc());
-    _notesLocalRepository.addOrUpdateNote(updatedNote);
-  }
-
-  Future<void> onNoteDeletePermanently(Note note) async {
-    await _notesRemoteRepository.deleteNoteWithId(note.id);
-    _notesLocalRepository.deleteNoteWithId(note.id);
-  }
-
-  Future<void> onRefreshNotes() async {
+  Future<void> onRefreshNotesRemote() async {
     await _notesRemoteRepository.loadNotesRemote();
   }
 
@@ -183,7 +170,7 @@ class NotesCubit extends Cubit<NotesState> {
   }
 
   void onDispose() {
-    emit(NotesState.initial());
+    emit(state.copyWith(isLoading: true, searchQuery: '', notesLocal: [], notesRemote: [], notesFiltered: []));
     _notesLocalRepository.dispose();
     _notesRemoteRepository.dispose();
   }

@@ -71,6 +71,7 @@ class _SignupForm extends StatelessWidget {
                 const SizedBox(height: 10),
                 HybridTextField(
                   controller: emailController,
+                  inputType: TextInputType.emailAddress,
                   placeholder: 'Email',
                 ),
                 HybridTextField(

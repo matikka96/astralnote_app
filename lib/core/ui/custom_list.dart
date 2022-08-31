@@ -36,6 +36,7 @@ class CustomListItem extends StatelessWidget {
   const CustomListItem({
     required this.title,
     this.subtitle,
+    this.leading,
     this.trailing,
     this.color,
     this.onTap,
@@ -71,7 +72,6 @@ class CustomListItem extends StatelessWidget {
         arguments: obj,
       ),
       title: title,
-      color: Colors.blue,
       trailing: const Icon(Icons.arrow_forward_ios),
     );
   }
@@ -85,6 +85,7 @@ class CustomListItem extends StatelessWidget {
 
   final String title;
   final String? subtitle;
+  final Widget? leading;
   final Widget? trailing;
   final Color? color;
   final VoidCallback? onTap;
@@ -100,6 +101,7 @@ class CustomListItem extends StatelessWidget {
       onLongPress: onLongPress,
       title: Text(title, style: TextStyle(color: textColor)),
       subtitle: subtitle != null ? Text(subtitle!) : null,
+      leading: leading != null ? leading! : null,
       trailing: trailing != null ? trailing! : null,
     );
   }

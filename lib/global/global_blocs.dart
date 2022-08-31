@@ -1,5 +1,5 @@
 import 'package:astralnote_app/global/blocks/auth/auth_cubit.dart';
-import 'package:astralnote_app/global/blocks/connectivity/connectivity_cubit.dart';
+import 'package:astralnote_app/global/blocks/lifecycle/lifecycle_cubit.dart';
 import 'package:astralnote_app/global/blocks/local_config/local_config_cubit.dart';
 import 'package:astralnote_app/global/blocks/notes/notes_cubit.dart';
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
@@ -28,10 +28,11 @@ class GlobalBlocs extends StatelessWidget {
             authRepository: context.read<AuthRepository>(),
           ),
         ),
-        BlocProvider<ConnectivityCubit>(
+        BlocProvider<LifecycleCubit>(
           lazy: false,
-          create: (_) => ConnectivityCubit(
+          create: (_) => LifecycleCubit(
             networkMonitorRepository: context.read<NetworkMonitorRepository>(),
+            authRepository: context.read<AuthRepository>(),
           ),
         ),
         BlocProvider<NotesCubit>(

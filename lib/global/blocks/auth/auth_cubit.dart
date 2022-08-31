@@ -21,7 +21,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> onLogout() => _authRepository.logout();
 
-  _setAuthStatus(AuthStatus authStatus) async {
+  void _setAuthStatus(AuthStatus authStatus) async {
     emit(state.copyWith(status: authStatus));
     if (authStatus == AuthStatus.unauthenticated) {
       emit(state.copyWith(status: AuthStatus.uninitialized));

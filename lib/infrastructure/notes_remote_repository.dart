@@ -38,7 +38,6 @@ class NotesRemoteRepository {
   }
 
   Future<void> _createSingleNote(Note newNote) async {
-    // TODO: Create a proper model for body
     final newItem = {'id': newNote.id, 'content': newNote.content, 'status': newNote.status.name};
     final failureOrNewNote = await _directusItemConnector.post(collection: _collection, body: newItem);
     failureOrNewNote.fold(
@@ -54,7 +53,6 @@ class NotesRemoteRepository {
   }
 
   Future<void> _updateSingleNote(Note updatedNote) async {
-    // TODO: Create a proper model for body
     final updatedItem = {'content': updatedNote.content, 'status': updatedNote.status.name};
     final failureOrNewNote = await _directusItemConnector.patch(
       collection: _collection,
@@ -67,13 +65,36 @@ class NotesRemoteRepository {
     );
   }
 
-  Future<Either<GenericError, Unit>> deleteNoteWithId(String noteId) async {
-    final failureOrNoteDeleted = await _directusItemConnector.delete(collection: _collection, id: noteId);
-    return failureOrNoteDeleted.fold(
-      (error) => left(error),
-      (_) => right(unit),
-    );
+  Future<void> deleteNotesWithIds(List<Note> notes) async {
+    final List<String> succesfullyDeleted = [], unsuccesfullyDeleted = []; // Do something with unsuccesfullyDeleted ?
+    for (var note in notes) {
+      final failureOrNoteDeleted = await _directusItemConnector.delete(collection: _collection, id: note.id);
+      failureOrNoteDeleted.fold((_) => unsuccesfullyDeleted.add(note.id), (_) => succesfullyDeleted.add(note.id));
+    }
+    // _notesRemoteController.stream.value.fold(
+    //   (error) {},
+    //   (notes) {
+    //     final updatedNotes = [...notes]..removeWhere((note) => succesfullyDeleted.contains(note.id));
+    //     _notesRemoteController.add(right(updatedNotes));
+    //   },
+    // );
   }
+
+  // Future<void> deleteNoteWithId(String noteId) async {
+  //   final failureOrNoteDeleted = await _directusItemConnector.delete(collection: _collection, id: noteId);
+  //   failureOrNoteDeleted.fold(
+  //     (error) => left(error),
+  //     (_) {
+  //       _notesRemoteController.stream.value.fold(
+  //         (error) {},
+  //         (notes) {
+  //           final updatedNotes = [...notes]..removeWhere((note) => note.id == noteId);
+  //           _notesRemoteController.add(right(updatedNotes));
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   void dispose() {
     final List<Note> emptyNotes = [];

@@ -15,28 +15,30 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: const Text('Astralnote'),
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Navigator.pushNamed(context, Routes.profile.name),
-          icon: const Icon(Icons.account_circle),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.sort),
+    return GestureDetector(
+      onPanDown: (_) => context.hideKeyboard,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          title: const Text('Astralnote'),
+          leading: IconButton(
+            onPressed: () => Navigator.pushNamed(context, Routes.profile.name),
+            icon: const Icon(Icons.account_circle),
           ),
-        ],
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.sort),
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => Navigator.pushNamed(context, Routes.viewNote.name, arguments: Note.create()),
+          child: const Icon(Icons.add),
+        ),
+        body: const _Body(),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.pushNamed(context, Routes.viewNote.name, arguments: Note.create()),
-        child: const Icon(Icons.add),
-      ),
-      body: const _Body(),
     );
   }
 }
@@ -46,7 +48,6 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<NotesCubit>().onRefreshNotes();
     final searchController = TextEditingController(text: '');
     searchController.addListener(() {
       context.read<NotesCubit>().onUpdateSearchQuery(searchController.text);
@@ -58,7 +59,7 @@ class _Body extends StatelessWidget {
       builder: (context, state) {
         if (state.isLoading) return const Center(child: CircularProgressIndicator());
         if (state.isFailure != null) return const Center(child: Text('Error'));
-        if (state.notesParsed.isEmpty) return const Center(child: Text('No notes created'));
+        if (state.notesFiltered.isEmpty) return const Center(child: Text('No notes created'));
 
         final notes = state.notesPublished;
 
@@ -66,7 +67,7 @@ class _Body extends StatelessWidget {
           child: RefreshIndicator(
             onRefresh: () async {
               HapticFeedback.selectionClick();
-              await context.read<NotesCubit>().onRefreshNotes();
+              await context.read<NotesCubit>().onRefreshNotesRemote();
             },
             child: HybridScrollbar(
               child: CustomScrollView(

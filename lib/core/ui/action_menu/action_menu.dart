@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:astralnote_app/core/extensions/extensions.dart';
 import 'package:astralnote_app/core/ui/action_menu/action_menu_item.dart';
+import 'package:astralnote_app/core/ui/custom_divider.dart';
+import 'package:astralnote_app/core/ui/custom_list.dart';
 import 'package:astralnote_app/domain/note/note.dart';
 import 'package:astralnote_app/global/blocks/notes/notes_cubit.dart';
 import 'package:flutter/cupertino.dart';
@@ -37,7 +39,7 @@ class ActionMenu extends StatelessWidget {
           description: 'Delete',
           icon: Icons.delete_outline,
           onPress: () {
-            context.read<NotesCubit>().onNoteDelete(note);
+            context.read<NotesCubit>().onChangeNoteStatus(note: note, newNoteStatus: NoteStatus.archived);
             if (context.hasActiveParentRoute) context.navigator.pop();
           },
         ),
@@ -53,7 +55,7 @@ class ActionMenu extends StatelessWidget {
           description: 'Restore',
           icon: Icons.restore,
           onPress: () {
-            context.read<NotesCubit>().onNoteRestore(note);
+            context.read<NotesCubit>().onChangeNoteStatus(note: note, newNoteStatus: NoteStatus.published);
             if (popRoute && context.hasActiveParentRoute) context.navigator.pop();
           },
         ),
@@ -61,7 +63,7 @@ class ActionMenu extends StatelessWidget {
           description: 'Delete permanently',
           icon: Icons.delete_outline,
           onPress: () async {
-            await context.read<NotesCubit>().onNoteDeletePermanently(note);
+            context.read<NotesCubit>().onChangeNoteStatus(note: note, newNoteStatus: NoteStatus.deleted);
             if (popRoute && context.hasActiveParentRoute) context.navigator.pop();
           },
         ),
@@ -85,13 +87,24 @@ class ActionMenu extends StatelessWidget {
       return Material(
         child: Padding(
           padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-          child: Wrap(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(title: Text(title, style: Theme.of(context).textTheme.headline5)),
-              for (var actionItem in actionItems) ...[
-                const Divider(height: 1),
-                actionItem,
-              ],
+              CustomListGroup(
+                title: title,
+                listItems: List.generate(
+                  actionItems.length,
+                  (index) => CustomListItem(
+                    onTap: () {
+                      actionItems[index].onPress.call();
+                      context.navigator.pop();
+                    },
+                    title: actionItems[index].description,
+                    leading: actionItems[index].icon != null ? Icon(actionItems[index].icon) : null,
+                  ),
+                ),
+              ),
+              CustomDivider.empty(),
             ],
           ),
         ),

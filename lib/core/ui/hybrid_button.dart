@@ -32,7 +32,6 @@ class HybridButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonColor = type == HybridButtonType.primary ? context.theme.primaryColor : null;
     final textColor =
         type == HybridButtonType.primary ? context.theme.colorScheme.onSecondary : context.theme.colorScheme.primary;
     final loadingIndicator =
@@ -41,15 +40,18 @@ class HybridButton extends StatelessWidget {
 
     final iosButton = CupertinoButton(
       onPressed: isLoading ? () {} : onPressed,
+      color: type == HybridButtonType.primary ? context.theme.primaryColor : null,
       disabledColor: CupertinoColors.systemGrey,
-      color: buttonColor,
       child: content,
     );
 
     final materialButton = MaterialButton(
+      elevation: 0,
+      highlightElevation: 0,
       height: 50,
       onPressed: isLoading ? () {} : onPressed,
-      color: buttonColor,
+      color: type == HybridButtonType.primary ? context.theme.primaryColor : Colors.transparent,
+      disabledColor: Colors.grey,
       textColor: textColor,
       child: content,
     );
