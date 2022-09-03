@@ -9,8 +9,9 @@ import 'package:astralnote_app/domain/local_config/note_sort_order.dart';
 import 'package:astralnote_app/global/blocks/auth/auth_cubit.dart';
 import 'package:astralnote_app/global/blocks/local_config/local_config_cubit.dart';
 import 'package:astralnote_app/global/blocks/notes/notes_cubit.dart';
+import 'package:astralnote_app/global/blocks/remote_config/remote_config_cubit.dart';
 import 'package:astralnote_app/global/blocks/user/user_cubit.dart';
-import 'package:astralnote_app/infrastructure/user_repository.dart';
+import 'package:astralnote_app/core/helpers/url_launcher.dart';
 import 'package:astralnote_app/router_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,19 +41,17 @@ class ProfilePage extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocProvider(
-        create: (context) => UserCubit(userRepository: context.read<UserRepository>()),
-        child: HybridScrollbar(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const _DeletedNotes(),
-                const _Preferences(),
-                const _Information(),
-                const _Account(),
-                SizedBox(height: context.safeAreaPadding.bottom),
-              ],
-            ),
+      body: HybridScrollbar(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const _DeletedNotes(),
+              const _Preferences(),
+              const _Information(),
+              const _Feedback(),
+              const _Account(),
+              SizedBox(height: context.safeAreaPadding.bottom),
+            ],
           ),
         ),
       ),
@@ -148,18 +147,44 @@ class _Preferences extends StatelessWidget {
   }
 }
 
-// TODO: Get links dynamically
 class _Information extends StatelessWidget {
   const _Information({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return CustomListGroup(
-      title: 'Information',
-      listItems: [
-        CustomListItem.link(context, title: 'Terms of Use', url: 'https://matvei.xyz'),
-        CustomListItem.link(context, title: 'Privacy Policy', url: 'https://google.com'),
-      ],
+    return BlocBuilder<RemoteConfigCubit, RemoteConfigState>(
+      builder: (context, state) {
+        return CustomListGroup(
+          title: 'Information',
+          listItems: [
+            CustomListItem.link(context, title: 'Terms of Use', url: state.termsOfUse),
+            CustomListItem.link(context, title: 'Privacy Policy', url: state.privacyPolicy),
+            CustomListItem(title: 'App version', subtitle: context.read<LocalConfigCubit>().state.currentAppVersion),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _Feedback extends StatelessWidget {
+  const _Feedback({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserCubit, UserState>(
+      builder: (context, state) {
+        return CustomListGroup(
+          title: 'Feedback',
+          listItems: [
+            CustomListItem(
+              onTap: () => sendEmailTo('matvei.tikka@gmail.com', subject: 'Astralnote feedback (${state.user?.id})'),
+              title: 'Send us email',
+              trailing: const Icon(Icons.open_in_new),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -185,12 +210,12 @@ class _Account extends StatelessWidget {
           default:
         }
       },
-      buildWhen: (previous, current) => previous.user.email != current.user.email,
+      buildWhen: (previous, current) => previous.user?.email != current.user?.email,
       builder: (context, state) {
         return CustomListGroup(
           title: 'Account',
           listItems: [
-            CustomListItem(title: 'Email', subtitle: state.user.email),
+            CustomListItem(title: 'Email', subtitle: state.user?.email),
             CustomListItem(
               onTap: state.status == UserStatus.loaded
                   ? () => showHybridDialog(context,
@@ -202,7 +227,8 @@ class _Account extends StatelessWidget {
               title: 'Delete account',
             ),
             CustomListItem(
-              onTap: state.status == UserStatus.loaded ? () => context.read<AuthCubit>().onLogout() : null,
+              // onTap: state.status == UserStatus.loaded ? () => context.read<AuthCubit>().onLogout() : null,
+              onTap: () => context.read<AuthCubit>().onLogout(),
               title: 'Logout',
               color: Colors.red,
             ),

@@ -47,9 +47,11 @@ class CustomTheme {
       secondary: _primaryColor,
       onSecondary: _onSecondaryColor,
     ),
+    scaffoldBackgroundColor: Colors.black,
     primaryColor: _primaryColor,
     splashFactory: _splashFactory,
     shadowColor: _shadowColor,
+    // dividerColor: Colors.red, // TODO: Pass proper value
     appBarTheme: _appBarTheme.copyWith(backgroundColor: _primaryColor),
     tooltipTheme: _tooltipTheme,
     inputDecorationTheme: _inputDecorationTheme,
@@ -58,6 +60,7 @@ class CustomTheme {
     cupertinoOverrideTheme: const CupertinoThemeData(
       primaryColor: _primaryColor,
       textTheme: CupertinoTextThemeData(primaryColor: _onSecondaryColor),
+      scaffoldBackgroundColor: Colors.red,
     ),
   );
 }

@@ -19,6 +19,7 @@ class HybridSearchField extends StatelessWidget {
         title: CupertinoSearchTextField(
           controller: controller,
           placeholder: 'Search notes',
+          backgroundColor: context.theme.highlightColor,
           onSuffixTap: () {
             controller.clear();
             context.hideKeyboard;
@@ -36,7 +37,7 @@ class HybridSearchField extends StatelessWidget {
               floatingLabelBehavior: FloatingLabelBehavior.never,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: controller.text.isNotEmpty
-                  ? GestureDetector(onTap: () => controller.clear(), child: const Icon(Icons.close))
+                  ? IconButton(onPressed: () => controller.clear(), icon: const Icon(Icons.close))
                   : null,
             ),
           ),

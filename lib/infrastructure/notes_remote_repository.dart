@@ -13,9 +13,9 @@ class NotesRemoteRepository {
   }
 
   final DirectusConnectorService _directusItemConnector;
+  static const _collection = 'note';
 
   final _notesRemoteController = BehaviorSubject<Either<GenericError, List<Note>>>();
-  static const _collection = 'note';
 
   Stream<Either<GenericError, List<Note>>> get failureOrNotesRemote => _notesRemoteController.stream;
 
@@ -71,30 +71,7 @@ class NotesRemoteRepository {
       final failureOrNoteDeleted = await _directusItemConnector.delete(collection: _collection, id: note.id);
       failureOrNoteDeleted.fold((_) => unsuccesfullyDeleted.add(note.id), (_) => succesfullyDeleted.add(note.id));
     }
-    // _notesRemoteController.stream.value.fold(
-    //   (error) {},
-    //   (notes) {
-    //     final updatedNotes = [...notes]..removeWhere((note) => succesfullyDeleted.contains(note.id));
-    //     _notesRemoteController.add(right(updatedNotes));
-    //   },
-    // );
   }
-
-  // Future<void> deleteNoteWithId(String noteId) async {
-  //   final failureOrNoteDeleted = await _directusItemConnector.delete(collection: _collection, id: noteId);
-  //   failureOrNoteDeleted.fold(
-  //     (error) => left(error),
-  //     (_) {
-  //       _notesRemoteController.stream.value.fold(
-  //         (error) {},
-  //         (notes) {
-  //           final updatedNotes = [...notes]..removeWhere((note) => note.id == noteId);
-  //           _notesRemoteController.add(right(updatedNotes));
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
 
   void dispose() {
     final List<Note> emptyNotes = [];

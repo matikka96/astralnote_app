@@ -64,7 +64,7 @@ class _SignupForm extends StatelessWidget {
                     : null,
                 text: 'Sign up',
               ),
-              const CustomDivider(showBottomPadding: false, showBorder: false),
+              CustomDivider.emptySmall(),
             ],
             child: Column(
               children: [

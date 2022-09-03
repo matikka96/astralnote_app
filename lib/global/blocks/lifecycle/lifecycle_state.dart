@@ -22,11 +22,11 @@ class LifecycleState with _$LifecycleState {
     );
   }
 
-  bool get _appIsOnline => connectivity == ConnectivityStatus.online ? true : false;
+  bool get appIsOnline => connectivity == ConnectivityStatus.online ? true : false;
 
-  bool get _appIsActive => activity == AppActivityStatus.active ? true : false;
+  bool get appIsActive => activity == AppActivityStatus.active ? true : false;
 
-  bool get _userIsAuthenticated => authStatus == AuthStatus.authenticated ? true : false;
+  bool get userIsAuthenticated => authStatus == AuthStatus.authenticated ? true : false;
 
-  bool get repeatedSyncIsOn => _appIsOnline && _appIsActive && _userIsAuthenticated;
+  bool get isOnlineAndActiveAndAuthenticated => appIsOnline && appIsActive && userIsAuthenticated;
 }

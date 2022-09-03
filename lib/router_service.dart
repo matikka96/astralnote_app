@@ -6,12 +6,14 @@ import 'package:astralnote_app/pages/main/main_page.dart';
 import 'package:astralnote_app/pages/profile/profile_page.dart';
 import 'package:astralnote_app/pages/signup/signup_page.dart';
 import 'package:astralnote_app/pages/start/start_page.dart';
+import 'package:astralnote_app/pages/terms_of_use/terms_of_use_page.dart';
 import 'package:astralnote_app/pages/webview/webview_page.dart';
 import 'package:flutter/material.dart';
 
 import 'pages/view_note/view_note_page.dart';
 
 enum Routes {
+  termsOfUse('/terms-of-use'),
   profile('/profile'),
   deletedNotes('/deleted-notes'),
   accountCreated('/account-created'),
@@ -35,27 +37,48 @@ class RouterService {
     final route = Routes.values.firstWhere((route) => route.name == settings.name);
     switch (route) {
       case Routes.profile:
-        return const ProfilePage();
+        return MaterialPageRoute(
+          builder: (_) => const ProfilePage(),
+        );
       case Routes.deletedNotes:
-        return const DeletedNotesPage();
+        return MaterialPageRoute(
+          builder: (_) => const DeletedNotesPage(),
+        );
       case Routes.accountCreated:
-        return const AccountCreatedPage();
+        return MaterialPageRoute(
+          builder: (_) => const AccountCreatedPage(),
+        );
       case Routes.login:
-        return const LoginPage();
+        return MaterialPageRoute(
+          builder: (_) => const LoginPage(),
+        );
       case Routes.signup:
-        return const SignupPage();
+        return MaterialPageRoute(
+          builder: (_) => const SignupPage(),
+        );
       case Routes.viewNote:
         final noteData = settings.arguments as Note;
-        return ViewNotePage(note: noteData);
+        return MaterialPageRoute(
+          builder: (_) => ViewNotePage(note: noteData),
+        );
       case Routes.main:
-        return const MainPage();
+        return MaterialPageRoute(
+          builder: (_) => const MainPage(),
+        );
       case Routes.start:
-        return const StartPage();
+        return MaterialPageRoute(
+          builder: (_) => const StartPage(),
+        );
       case Routes.webview:
-        final args = settings.arguments as Map<String, String>;
-        final url = args['url']!;
-        final title = args['title']!;
-        return WebviewPage(url: url, title: title);
+        final pageParams = settings.arguments as WebviewPageParams;
+        return MaterialPageRoute(
+          builder: (_) => WebviewPage(params: pageParams),
+        );
+      case Routes.termsOfUse:
+        return MaterialPageRoute(
+          fullscreenDialog: true,
+          builder: (_) => const TermsOfUsePage(),
+        );
     }
   }
 }

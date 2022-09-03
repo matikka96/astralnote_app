@@ -10,25 +10,31 @@ class UserCubit extends Cubit<UserState> {
   UserCubit({
     required UserRepository userRepository,
   })  : _userRepository = userRepository,
-        super(UserState.initial()) {
-    _init();
-  }
+        super(UserState.initial());
 
   final UserRepository _userRepository;
 
-  _init() async {
-    final failureOrCurrentUser = await _userRepository.getCurrentUser();
-    failureOrCurrentUser.fold(
-      (error) => emit(state.copyWith(status: UserStatus.loadingFailed)),
-      (user) => emit(state.copyWith(user: user, status: UserStatus.loaded)),
-    );
+  onLoadCurrentUser() async {
+    if (state.user == null) {
+      final failureOrCurrentUser = await _userRepository.getCurrentUser();
+      failureOrCurrentUser.fold(
+        (error) => emit(state.copyWith(status: UserStatus.loadingFailed)),
+        (user) => emit(state.copyWith(user: user, status: UserStatus.loaded)),
+      );
+    }
   }
 
   onDelete() async {
-    final failreOrUserDeleted = await _userRepository.deleteCurrentUser(userId: state.user.id);
-    failreOrUserDeleted.fold(
-      (error) => emit(state.copyWith(status: UserStatus.userDeletionFailed)),
-      (_) => emit(state.copyWith(status: UserStatus.userDeleted)),
-    );
+    if (state.user == null) {
+      final failreOrUserDeleted = await _userRepository.deleteCurrentUser(userId: state.user!.id);
+      failreOrUserDeleted.fold(
+        (error) => emit(state.copyWith(status: UserStatus.userDeletionFailed)),
+        (_) => emit(state.copyWith(status: UserStatus.userDeleted)),
+      );
+    }
+  }
+
+  void onDispose() {
+    emit(UserState.initial());
   }
 }

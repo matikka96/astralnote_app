@@ -29,6 +29,7 @@ class UserDTO with _$UserDTO {
     @JsonKey(name: 'external_identifier') required String? externalIdentifier,
     @JsonKey(name: 'auth_data') required String? authData,
     @JsonKey(name: 'email_notifications') required bool? emailNotifications,
+    @JsonKey(name: 'accepted_app_info') required int? acceptedAppInfo,
   }) = _UserDTO;
 
   const UserDTO._();
@@ -39,6 +40,7 @@ class UserDTO with _$UserDTO {
     return User(
       id: id,
       email: email,
+      acceptedAppInfoId: acceptedAppInfo,
     );
   }
 }

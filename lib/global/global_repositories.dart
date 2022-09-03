@@ -1,5 +1,6 @@
 import 'package:astralnote_app/config.dart';
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
+import 'package:astralnote_app/infrastructure/remote_config_repository.dart';
 import 'package:astralnote_app/infrastructure/user_repository.dart';
 import 'package:astralnote_app/infrastructure/directus_connector_service.dart';
 import 'package:astralnote_app/infrastructure/network_monitor_repository.dart';
@@ -36,6 +37,7 @@ class GlobalRepositories extends StatelessWidget {
 
     final dioModule = DioModule(authRepository: authRepository);
 
+    final publicDataConnector = DirectusConnectorService(dio: publicDio, endpoint: DirectusEndpoins.items);
     final dataConnector = DirectusConnectorService(dio: dioModule.instance, endpoint: DirectusEndpoins.items);
     final currentUserConnector = DirectusConnectorService(dio: dioModule.instance, endpoint: DirectusEndpoins.users);
 
@@ -58,6 +60,9 @@ class GlobalRepositories extends StatelessWidget {
         ),
         RepositoryProvider(
           create: (context) => UserRepository(currentUserConnector: currentUserConnector),
+        ),
+        RepositoryProvider(
+          create: (context) => RemoteConfigRepository(publicDataConnector: publicDataConnector),
         ),
       ],
       child: child,

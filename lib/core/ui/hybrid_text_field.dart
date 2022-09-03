@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:astralnote_app/core/extensions/extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -32,6 +33,14 @@ class HybridTextField extends StatelessWidget {
           child: CupertinoTextField(
             controller: controller,
             padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: CupertinoDynamicColor.withBrightness(
+                color: CupertinoColors.white,
+                darkColor: context.theme.highlightColor,
+              ),
+              border: Border.all(color: context.theme.highlightColor),
+              borderRadius: const BorderRadius.all(Radius.circular(9.0)),
+            ),
             readOnly: readOnly,
             obscureText: isForPassword,
             enableSuggestions: !isForPassword,
@@ -49,7 +58,7 @@ class HybridTextField extends StatelessWidget {
             decoration: InputDecoration(
               label: placeholder != null ? Text(placeholder!) : null,
               suffixIcon: controller.text.isNotEmpty
-                  ? GestureDetector(onTap: () => controller.clear(), child: const Icon(Icons.close))
+                  ? IconButton(onPressed: () => controller.clear(), icon: const Icon(Icons.close))
                   : null,
             ),
             keyboardType: inputType,

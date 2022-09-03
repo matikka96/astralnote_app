@@ -24,9 +24,11 @@ class DirectusConnectorService {
     );
   }
 
-  Future<Either<GenericError, dynamic>> getOne({required String collection, String? itemId}) async {
+  Future<Either<GenericError, dynamic>> getOne({required String collection, String? itemId, String? query}) async {
     try {
-      final response = await _dio.get('/$_endpoint/$collection/${itemId != null ? '/$itemId' : ''}');
+      final response = await _dio.get(
+        '/$_endpoint/$collection/${itemId != null ? '/$itemId' : ''}${query != null ? '?$query' : ''}',
+      );
       final responseDTO = GetOneDirectusItemDTO.fromJson(response.data);
       return right(responseDTO.data);
     } catch (responseError) {
@@ -57,8 +59,8 @@ class DirectusConnectorService {
 
   Future<Either<GenericError, dynamic>> patch({
     required String collection,
-    required String id,
     required dynamic body,
+    String id = '',
   }) async {
     try {
       final response = await _dio.patch('/$_endpoint/$collection/$id', data: body);

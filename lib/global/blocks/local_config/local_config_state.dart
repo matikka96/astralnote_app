@@ -5,12 +5,17 @@ class LocalConfigState with _$LocalConfigState {
   const factory LocalConfigState({
     required NotesSortOrder sortOrder,
     required AppTheme theme,
+    required String currentAppVersion,
   }) = _LocalConfigState;
 
   const LocalConfigState._();
 
   factory LocalConfigState.initial() {
-    return const LocalConfigState(sortOrder: NotesSortOrder.dateEdited, theme: AppTheme.system);
+    return const LocalConfigState(
+      sortOrder: NotesSortOrder.dateEdited,
+      theme: AppTheme.system,
+      currentAppVersion: "",
+    );
   }
 
   ThemeMode get activeTheme {

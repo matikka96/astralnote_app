@@ -32,8 +32,8 @@ class DioModule {
             final refreshToken = await secureStorageRepository.getWithKey(StorageKeys.refreshToken);
             final directusAuthConnector = DirectusConnectorService.auth();
             final body = {'refresh_token': refreshToken};
-            final rejectOrLogin = await directusAuthConnector.post(collection: 'refresh', body: body);
-            return rejectOrLogin.fold(
+            final rejectOrRefreshToken = await directusAuthConnector.post(collection: 'refresh', body: body);
+            return rejectOrRefreshToken.fold(
               (error) {
                 _authRepository.logout();
                 handler.reject(e);

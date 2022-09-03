@@ -4,6 +4,7 @@ import 'package:astralnote_app/infrastructure/secure_storage_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 part 'local_config_state.dart';
 part 'local_config_cubit.freezed.dart';
@@ -19,6 +20,9 @@ class LocalConfigCubit extends Cubit<LocalConfigState> {
   final SecureStorageRepository _secureStorageRepository;
 
   _init() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final appVersion = packageInfo.version;
+
     final notesSortOrderRaw = await _secureStorageRepository.getWithKey(StorageKeys.notesSortOrder);
     final appThemeRaw = await _secureStorageRepository.getWithKey(StorageKeys.appTheme);
 
@@ -32,7 +36,7 @@ class LocalConfigCubit extends Cubit<LocalConfigState> {
       orElse: () => AppTheme.system,
     );
 
-    emit(state.copyWith(sortOrder: notesSortOrder, theme: appTheme));
+    emit(state.copyWith(sortOrder: notesSortOrder, theme: appTheme, currentAppVersion: appVersion));
   }
 
   Future<void> onUpdatedSortOrder(NotesSortOrder newSortOrder) async {
