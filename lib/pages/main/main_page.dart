@@ -3,6 +3,7 @@ import 'package:astralnote_app/core/ui/custom_divider.dart';
 import 'package:astralnote_app/core/ui/custom_list.dart';
 import 'package:astralnote_app/core/ui/hybrid_scroll_bar.dart';
 import 'package:astralnote_app/core/ui/hybrid_search_field.dart';
+import 'package:astralnote_app/global/blocks/lifecycle/lifecycle_cubit.dart';
 import 'package:astralnote_app/global/blocks/notes/notes_cubit.dart';
 import 'package:astralnote_app/domain/note/note.dart';
 import 'package:astralnote_app/router_service.dart';
@@ -67,7 +68,11 @@ class _Body extends StatelessWidget {
           child: RefreshIndicator(
             onRefresh: () async {
               HapticFeedback.selectionClick();
-              await context.read<NotesCubit>().onRefreshNotesRemote();
+              if (context.read<LifecycleCubit>().state.appIsOnline) {
+                await context.read<NotesCubit>().onRefreshNotesRemote();
+              } else {
+                context.showSnackbarMessage('App is offline. Try again later.');
+              }
             },
             child: HybridScrollbar(
               child: CustomScrollView(

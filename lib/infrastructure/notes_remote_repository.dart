@@ -1,4 +1,3 @@
-import 'package:astralnote_app/domain/generic_error.dart';
 import 'package:astralnote_app/domain/note/dto/note_dto.dart';
 import 'package:astralnote_app/domain/note/note.dart';
 import 'package:astralnote_app/infrastructure/directus_connector_service.dart';
@@ -15,9 +14,9 @@ class NotesRemoteRepository {
   final DirectusConnectorService _directusItemConnector;
   static const _collection = 'note';
 
-  final _notesRemoteController = BehaviorSubject<Either<GenericError, List<Note>>>();
+  final _notesRemoteController = BehaviorSubject<Either<DirectusError, List<Note>>>();
 
-  Stream<Either<GenericError, List<Note>>> get failureOrNotesRemote => _notesRemoteController.stream;
+  Stream<Either<DirectusError, List<Note>>> get failureOrNotesRemote => _notesRemoteController.stream;
 
   Future<void> loadNotesRemote() async {
     final failureOrRemoteNotes = await _directusItemConnector.getMany(collection: _collection);

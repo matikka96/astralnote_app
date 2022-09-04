@@ -1,4 +1,3 @@
-import 'package:astralnote_app/domain/generic_error.dart';
 import 'package:astralnote_app/domain/user/dto/user_dto.dart';
 import 'package:astralnote_app/domain/user/user.dart';
 import 'package:astralnote_app/infrastructure/directus_connector_service.dart';
@@ -12,7 +11,7 @@ class UserRepository {
   final DirectusConnectorService _currentUserConnector;
   final _collection = 'me';
 
-  Future<Either<GenericError, User>> getCurrentUser() async {
+  Future<Either<DirectusError, User>> getCurrentUser() async {
     final failureOrCurrentUser = await _currentUserConnector.getOne(collection: _collection);
     return failureOrCurrentUser.fold(
       (error) => left(error),
@@ -24,7 +23,7 @@ class UserRepository {
     );
   }
 
-  Future<Either<GenericError, Unit>> deleteCurrentUser({required String userId}) async {
+  Future<Either<DirectusError, Unit>> deleteCurrentUser({required String userId}) async {
     final failureOrCurrentUser = await _currentUserConnector.delete(collection: '', id: userId);
     return failureOrCurrentUser.fold(
       (error) => left(error),
@@ -32,7 +31,7 @@ class UserRepository {
     );
   }
 
-  Future<Either<GenericError, Unit>> updateUserAcceptedAppInfo({
+  Future<Either<DirectusError, Unit>> updateUserAcceptedAppInfo({
     required String userId,
     required String appInfoId,
   }) async {

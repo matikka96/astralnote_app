@@ -9,7 +9,7 @@ class AuthState with _$AuthState {
   }) = _AuthState;
 
   factory AuthState.initial() {
-    return const AuthState(status: AuthStatus.uninitialized, inProgress: false);
+    return const AuthState(status: AuthStatus.unauthenticated, inProgress: false);
   }
 
   factory AuthState.authenticated() {
@@ -18,9 +18,5 @@ class AuthState with _$AuthState {
 
   factory AuthState.unauthenticated() {
     return const AuthState(status: AuthStatus.unauthenticated, inProgress: false);
-  }
-
-  factory AuthState.uninitialized({bool? inProgress, AuthError? authError}) {
-    return AuthState(status: AuthStatus.uninitialized, inProgress: inProgress ?? false, authError: authError);
   }
 }

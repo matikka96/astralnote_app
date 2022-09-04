@@ -1,5 +1,5 @@
-import 'package:astralnote_app/config.dart';
 import 'package:astralnote_app/domain/auth/dto/auth_dto.dart';
+import 'package:astralnote_app/env.dart';
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
 import 'package:astralnote_app/infrastructure/directus_connector_service.dart';
 import 'package:astralnote_app/infrastructure/secure_storage_repository.dart';
@@ -15,7 +15,7 @@ class DioModule {
 
   Dio get instance {
     final dio = Dio(
-      BaseOptions(baseUrl: Config.backendUrl),
+      BaseOptions(baseUrl: Environment().config.backendUrl),
     );
 
     final secureStorageRepository = SecureStorageRepository(secureStorageModule: SecureStorageModule());

@@ -5,7 +5,6 @@ class NotesState with _$NotesState {
   const factory NotesState({
     required bool isLoading,
     required bool isSyncing,
-    required bool isOnline,
     required String searchQuery,
     required NotesSortOrder sortOrder,
     required List<Note>? notesLocal,
@@ -20,7 +19,6 @@ class NotesState with _$NotesState {
     return const NotesState(
       isLoading: true,
       isSyncing: false,
-      isOnline: false,
       searchQuery: '',
       sortOrder: NotesSortOrder.dateEdited,
       notesLocal: null,
@@ -29,7 +27,7 @@ class NotesState with _$NotesState {
     );
   }
 
-  bool get canSync => isOnline && notesLocal != null && notesRemote != null;
+  bool get canSync => notesLocal != null && notesRemote != null;
 
   List<Note> get notesPublished {
     final published = notesFiltered.where((note) => note.status == NoteStatus.published).toList();

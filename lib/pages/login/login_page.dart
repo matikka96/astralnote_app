@@ -3,6 +3,7 @@ import 'package:astralnote_app/core/ui/custom_divider.dart';
 import 'package:astralnote_app/core/ui/custom_layout.dart';
 import 'package:astralnote_app/core/ui/hybrid_button.dart';
 import 'package:astralnote_app/core/ui/hybrid_text_field.dart';
+import 'package:astralnote_app/env.dart';
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
 import 'package:astralnote_app/pages/login/cubit/login_cubit.dart';
 import 'package:flutter/material.dart';
@@ -59,17 +60,18 @@ class _Body extends StatelessWidget {
               isLoading: state.inProgress,
               text: 'Login',
             ),
-            HybridButton.secondary(
-              onPressed: () async => loginCubit.onLogin(email: 'matvei.tikka@outlook.com', password: 'Test123!'),
-              text: 'Quick login',
-            ),
+            if (Environment().isDev)
+              HybridButton.secondary(
+                onPressed: () async => loginCubit.onLogin(email: 'matvei.tikka@outlook.com', password: 'Test123!'),
+                text: 'Quick login',
+              ),
             CustomDivider.emptySmall(),
           ],
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
-              const SizedBox(height: 10),
+              CustomDivider.emptySmall(),
               HybridTextField(controller: emailController, placeholder: 'Email', inputType: TextInputType.emailAddress),
               HybridTextField(controller: passwordController, placeholder: 'Password', isForPassword: true),
             ],

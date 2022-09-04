@@ -44,9 +44,6 @@ class LifecycleCubit extends Cubit<LifecycleState> {
 
   void _setAuthStatus(AuthStatus authStatus) async {
     emit(state.copyWith(authStatus: authStatus));
-    if (authStatus == AuthStatus.unauthenticated) {
-      emit(state.copyWith(authStatus: AuthStatus.uninitialized));
-    }
   }
 
   @override

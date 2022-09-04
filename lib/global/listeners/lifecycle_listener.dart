@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:astralnote_app/core/extensions/extensions.dart';
 import 'package:astralnote_app/global/blocks/lifecycle/lifecycle_cubit.dart';
 import 'package:astralnote_app/global/blocks/notes/notes_cubit.dart';
 import 'package:astralnote_app/global/blocks/remote_config/remote_config_cubit.dart';
 import 'package:astralnote_app/global/blocks/user/user_cubit.dart';
 import 'package:astralnote_app/global/listeners/app_activity_listener.dart';
-import 'package:astralnote_app/infrastructure/auth_repository.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -56,11 +54,9 @@ class LifecycleListener extends StatelessWidget {
 
           switch (state.appIsOnline) {
             case true:
-              context.read<NotesCubit>().onOnlineStatusChanged(isOnline: true); // TODO: Subscribe from NotesCubit
               context.read<RemoteConfigCubit>().onLoadRemoteConfig();
               break;
             case false:
-              context.read<NotesCubit>().onOnlineStatusChanged(isOnline: false); // TODO: Subscribe from NotesCubit
               context.read<RemoteConfigCubit>().onDispose();
               break;
           }

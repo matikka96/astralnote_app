@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:astralnote_app/domain/note/note.dart';
@@ -44,11 +45,11 @@ class NotesLocalRepository {
         }
         _notesController.add(right(notes));
       } catch (e) {
-        print(e);
+        log(e.toString());
       }
       _notesController.add(right(notes));
     } catch (e) {
-      print(e);
+      log(e.toString());
       _notesController.add(left(NotesLocalFailure.unexpected));
     }
   }
@@ -105,7 +106,7 @@ class NotesLocalRepository {
   void deleteNoteWithId(String noteId) {
     final failureOrNoteDeleted = _notesController.stream.value;
     failureOrNoteDeleted.fold(
-      (_) => print('Could not delete note'),
+      (_) => log('Could not delete note'),
       (notes) {
         final updatedNotes = [...notes]..removeWhere((note) => note.id == noteId);
         _notesController.add(right(updatedNotes));

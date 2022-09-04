@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:astralnote_app/core/extensions/extensions.dart';
@@ -28,7 +29,7 @@ class ActionMenu extends StatelessWidget {
         ActionMenuItem(
           description: 'Log note',
           icon: Icons.print,
-          onPress: () => print(note),
+          onPress: () => log(note.toString()),
         ),
         ActionMenuItem(
           description: 'Share',

@@ -6,6 +6,7 @@ import 'package:astralnote_app/core/ui/hybrid_dialog.dart';
 import 'package:astralnote_app/core/ui/hybrid_scroll_bar.dart';
 import 'package:astralnote_app/domain/local_config/app_theme.dart';
 import 'package:astralnote_app/domain/local_config/note_sort_order.dart';
+import 'package:astralnote_app/env.dart';
 import 'package:astralnote_app/global/blocks/auth/auth_cubit.dart';
 import 'package:astralnote_app/global/blocks/local_config/local_config_cubit.dart';
 import 'package:astralnote_app/global/blocks/notes/notes_cubit.dart';
@@ -24,22 +25,26 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
-        actions: [
-          IconButton(
-            onPressed: () => showActionMenu(
-              context,
-              actionMenu: ActionMenu(
-                title: 'Dev tools',
-                actionItems: [
-                  // TODO: Show only in dev mode
-                  ActionMenuItem(onPress: () => context.read<AuthCubit>().onBreakAccess(), description: 'Break access'),
-                  ActionMenuItem(onPress: () => context.read<AuthCubit>().onPrintTokens(), description: 'Print tokens'),
-                ],
-              ),
-            ),
-            icon: const Icon(Icons.more_horiz),
-          ),
-        ],
+        actions: Environment().isDev
+            ? [
+                IconButton(
+                  onPressed: () => showActionMenu(
+                    context,
+                    actionMenu: ActionMenu(title: 'Dev tools', actionItems: [
+                      ActionMenuItem(
+                        onPress: () => context.read<AuthCubit>().onBreakAccess(),
+                        description: 'Break access',
+                      ),
+                      ActionMenuItem(
+                        onPress: () => context.read<AuthCubit>().onPrintTokens(),
+                        description: 'Print tokens',
+                      ),
+                    ]),
+                  ),
+                  icon: const Icon(Icons.more_horiz),
+                ),
+              ]
+            : null,
       ),
       body: HybridScrollbar(
         child: SingleChildScrollView(
@@ -178,7 +183,10 @@ class _Feedback extends StatelessWidget {
           title: 'Feedback',
           listItems: [
             CustomListItem(
-              onTap: () => sendEmailTo('matvei.tikka@gmail.com', subject: 'Astralnote feedback (${state.user?.id})'),
+              onTap: () => sendEmailTo(
+                Environment().config.feedbackEmail,
+                subject: 'Astralnote feedback (${state.user?.id})',
+              ),
               title: 'Send us email',
               trailing: const Icon(Icons.open_in_new),
             ),

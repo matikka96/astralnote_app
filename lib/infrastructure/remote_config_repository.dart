@@ -1,4 +1,3 @@
-import 'package:astralnote_app/domain/generic_error.dart';
 import 'package:astralnote_app/domain/remote_config/dto/remote_config_dto.dart';
 import 'package:astralnote_app/domain/remote_config/remote_config.dart';
 import 'package:astralnote_app/infrastructure/directus_connector_service.dart';
@@ -12,7 +11,7 @@ class RemoteConfigRepository {
   final DirectusConnectorService _publicDataConnector;
   static const _collection = 'app_config';
 
-  Future<Either<GenericError, RemoteConfig>> getRemoteConfig() async {
+  Future<Either<DirectusError, RemoteConfig>> getRemoteConfig() async {
     final failureOrAppConfig = await _publicDataConnector.getOne(collection: _collection, query: 'fields=*.*');
     return failureOrAppConfig.fold(
       (error) => left(error),

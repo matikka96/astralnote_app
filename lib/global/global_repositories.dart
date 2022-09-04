@@ -1,4 +1,4 @@
-import 'package:astralnote_app/config.dart';
+import 'package:astralnote_app/env.dart';
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
 import 'package:astralnote_app/infrastructure/remote_config_repository.dart';
 import 'package:astralnote_app/infrastructure/user_repository.dart';
@@ -21,11 +21,11 @@ class GlobalRepositories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final publicDio = Dio(BaseOptions(baseUrl: Config.backendUrl));
+    final publicDio = Dio(BaseOptions(baseUrl: Environment().config.backendUrl));
 
     final authConnector = DirectusConnectorService.auth();
-    final rolesConnector = DirectusConnectorService(dio: publicDio, endpoint: DirectusEndpoins.roles);
-    final usersConnector = DirectusConnectorService(dio: publicDio, endpoint: DirectusEndpoins.users);
+    final rolesConnector = DirectusConnectorService(dio: publicDio, endpoint: DirectusEndpoint.roles);
+    final usersConnector = DirectusConnectorService(dio: publicDio, endpoint: DirectusEndpoint.users);
 
     final secureStorageRepository = SecureStorageRepository(secureStorageModule: SecureStorageModule());
     final authRepository = AuthRepository(
@@ -37,9 +37,9 @@ class GlobalRepositories extends StatelessWidget {
 
     final dioModule = DioModule(authRepository: authRepository);
 
-    final publicDataConnector = DirectusConnectorService(dio: publicDio, endpoint: DirectusEndpoins.items);
-    final dataConnector = DirectusConnectorService(dio: dioModule.instance, endpoint: DirectusEndpoins.items);
-    final currentUserConnector = DirectusConnectorService(dio: dioModule.instance, endpoint: DirectusEndpoins.users);
+    final publicDataConnector = DirectusConnectorService(dio: publicDio, endpoint: DirectusEndpoint.items);
+    final dataConnector = DirectusConnectorService(dio: dioModule.instance, endpoint: DirectusEndpoint.items);
+    final currentUserConnector = DirectusConnectorService(dio: dioModule.instance, endpoint: DirectusEndpoint.users);
 
     return MultiRepositoryProvider(
       providers: [

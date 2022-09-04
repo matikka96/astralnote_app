@@ -1,5 +1,6 @@
+import 'dart:developer';
+
 import 'package:astralnote_app/domain/auth/dto/auth_dto.dart';
-import 'package:astralnote_app/domain/generic_error.dart';
 import 'package:astralnote_app/domain/role/dto/role_dto.dart';
 import 'package:astralnote_app/infrastructure/directus_connector_service.dart';
 import 'package:astralnote_app/infrastructure/secure_storage_repository.dart';
@@ -10,7 +11,7 @@ import 'package:rxdart/rxdart.dart';
 
 enum AuthError { userNotExist, invalidCredentials, userAlreadyExist, invalidPayload, roleNoteFound, unexpected }
 
-enum AuthStatus { uninitialized, unauthenticated, authenticated }
+enum AuthStatus { unauthenticated, authenticated }
 
 class AuthRepository {
   AuthRepository({
@@ -79,7 +80,7 @@ class AuthRepository {
     return failureOrUserCreated.fold(
       (error) {
         switch (error) {
-          case GenericError.failedValidation:
+          case DirectusError.failedValidation:
             return left(AuthError.userAlreadyExist);
           default:
             return left(AuthError.unexpected);
@@ -106,8 +107,8 @@ class AuthRepository {
   Future<void> printTokens() async {
     final refresh = await _secureStorageRepository.getWithKey(StorageKeys.refreshToken);
     final access = await _secureStorageRepository.getWithKey(StorageKeys.accessToken);
-    print('Access: $access');
-    print('Refresh: $refresh');
+    log('Access: $access');
+    log('Refresh: $refresh');
   }
 
   Future<void> breakAccess() async {

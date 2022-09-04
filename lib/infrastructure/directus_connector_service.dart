@@ -1,16 +1,17 @@
-import 'package:astralnote_app/config.dart';
 import 'package:astralnote_app/domain/directus/dto/get_many_directus_items_dto.dart';
 import 'package:astralnote_app/domain/directus/dto/get_one_directus_item_dto.dart';
-import 'package:astralnote_app/domain/generic_error.dart';
+import 'package:astralnote_app/env.dart';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 
-enum DirectusEndpoins { auth, roles, items, users }
+enum DirectusError { tokenExpired, forbidden, notFound, unexpected, failedValidation }
+
+enum DirectusEndpoint { auth, roles, items, users }
 
 class DirectusConnectorService {
   DirectusConnectorService({
     required Dio dio,
-    required DirectusEndpoins endpoint,
+    required DirectusEndpoint endpoint,
   })  : _dio = dio,
         _endpoint = endpoint.name;
 
@@ -19,12 +20,12 @@ class DirectusConnectorService {
 
   factory DirectusConnectorService.auth() {
     return DirectusConnectorService(
-      dio: Dio(BaseOptions(baseUrl: Config.backendUrl)),
-      endpoint: DirectusEndpoins.auth,
+      dio: Dio(BaseOptions(baseUrl: Environment().config.backendUrl)),
+      endpoint: DirectusEndpoint.auth,
     );
   }
 
-  Future<Either<GenericError, dynamic>> getOne({required String collection, String? itemId, String? query}) async {
+  Future<Either<DirectusError, dynamic>> getOne({required String collection, String? itemId, String? query}) async {
     try {
       final response = await _dio.get(
         '/$_endpoint/$collection/${itemId != null ? '/$itemId' : ''}${query != null ? '?$query' : ''}',
@@ -36,7 +37,7 @@ class DirectusConnectorService {
     }
   }
 
-  Future<Either<GenericError, List<dynamic>>> getMany({required String collection}) async {
+  Future<Either<DirectusError, List<dynamic>>> getMany({required String collection}) async {
     try {
       final response = await _dio.get('/$_endpoint/$collection');
       final responseDTO = GetManyDirectusItemsDTO.fromJson(response.data);
@@ -46,7 +47,7 @@ class DirectusConnectorService {
     }
   }
 
-  Future<Either<GenericError, dynamic>> post({required String collection, required dynamic body}) async {
+  Future<Either<DirectusError, dynamic>> post({required String collection, required dynamic body}) async {
     try {
       final response = await _dio.post('/$_endpoint/$collection', data: body);
       if (response.statusCode == 204) return right(const GetOneDirectusItemDTO(data: ""));
@@ -57,7 +58,7 @@ class DirectusConnectorService {
     }
   }
 
-  Future<Either<GenericError, dynamic>> patch({
+  Future<Either<DirectusError, dynamic>> patch({
     required String collection,
     required dynamic body,
     String id = '',
@@ -71,7 +72,7 @@ class DirectusConnectorService {
     }
   }
 
-  Future<Either<GenericError, Unit>> delete({required String collection, required String id}) async {
+  Future<Either<DirectusError, Unit>> delete({required String collection, required String id}) async {
     try {
       await _dio.delete('/$_endpoint/$collection/$id');
       return right(unit);
@@ -81,11 +82,11 @@ class DirectusConnectorService {
   }
 
   // Generic error parser for Directus
-  GenericError _parseResponseError(responseError) {
-    GenericError error = GenericError.unexpected;
-    if (responseError is DioError && responseError.response?.statusCode == 400) error = GenericError.failedValidation;
-    if (responseError is DioError && responseError.response?.statusCode == 401) error = GenericError.tokenExpired;
-    if (responseError is DioError && responseError.response?.statusCode == 403) error = GenericError.forbidden;
+  DirectusError _parseResponseError(responseError) {
+    DirectusError error = DirectusError.unexpected;
+    if (responseError is DioError && responseError.response?.statusCode == 400) error = DirectusError.failedValidation;
+    if (responseError is DioError && responseError.response?.statusCode == 401) error = DirectusError.tokenExpired;
+    if (responseError is DioError && responseError.response?.statusCode == 403) error = DirectusError.forbidden;
     return error;
   }
 }

@@ -18,7 +18,7 @@ class LifecycleState with _$LifecycleState {
     return const LifecycleState(
       connectivity: ConnectivityStatus.offline,
       activity: AppActivityStatus.active,
-      authStatus: AuthStatus.uninitialized,
+      authStatus: AuthStatus.unauthenticated,
     );
   }
 

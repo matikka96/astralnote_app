@@ -62,11 +62,6 @@ class _Body extends StatelessWidget {
               isLoading: state.status == TermsOfUseStatus.inProgress ? true : false,
               text: 'Accept',
             ),
-            // TODO: Remove close button in the end
-            // HybridButton.secondary(
-            //   onPressed: () => context.navigator.pop(),
-            //   text: 'Close',
-            // ),
             CustomDivider.emptySmall(),
           ],
           child: Column(

@@ -2,18 +2,16 @@
   "version": "0.1.0",
   "configurations": [
     {
-      "name": "main",
+      "name": "DEV",
+      "program": "lib/main_dev.dart",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "PROD",
       "program": "lib/main.dart",
       "request": "launch",
-      "type": "dart",
-      "args": []
+      "type": "dart"
     }
-    // {
-    //   "name": "PROD",
-    //   "program": "lib/main_prod.dart",
-    //   "request": "launch",
-    //   "type": "dart",
-    //   "args": ["--flavor", "prod", "--no-sound-null-safety"]
-    // }
   ]
 }

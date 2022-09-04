@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:astralnote_app/domain/local_config/note_sort_order.dart';
+import 'package:astralnote_app/infrastructure/directus_connector_service.dart';
 import 'package:astralnote_app/infrastructure/notes_local_repository.dart';
 import 'package:astralnote_app/infrastructure/notes_remote_repository.dart';
-import 'package:astralnote_app/domain/generic_error.dart';
 import 'package:astralnote_app/domain/note/note.dart';
 import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
@@ -36,7 +36,7 @@ class NotesCubit extends Cubit<NotesState> {
   final NotesLocalRepository _notesLocalRepository;
   final NotesRemoteRepository _notesRemoteRepository;
   StreamSubscription<Either<NotesLocalFailure, List<Note>>>? _notesLocalStreamSubscription;
-  StreamSubscription<Either<GenericError, List<Note>>>? _notesRemoteStreamSubscription;
+  StreamSubscription<Either<DirectusError, List<Note>>>? _notesRemoteStreamSubscription;
   final _searchQuerySubject = BehaviorSubject<String>();
 
   Future<void> _onNotesLocalChanged(Either<NotesLocalFailure, List<Note>> failureOrNotes) async {
@@ -49,7 +49,7 @@ class NotesCubit extends Cubit<NotesState> {
     );
   }
 
-  Future<void> _onNotesRemoteChanged(Either<GenericError, List<Note>> failureOrNotes) async {
+  Future<void> _onNotesRemoteChanged(Either<DirectusError, List<Note>> failureOrNotes) async {
     failureOrNotes.fold(
       (error) => emit(state.copyWith(isLoading: false)),
       (notesRemote) {
@@ -150,10 +150,6 @@ class NotesCubit extends Cubit<NotesState> {
     }
 
     emit(state.copyWith(notesFiltered: filteredNotes));
-  }
-
-  void onOnlineStatusChanged({required bool isOnline}) {
-    emit(state.copyWith(isOnline: isOnline));
   }
 
   void onChangeNoteStatus({required Note note, required NoteStatus newNoteStatus}) {
