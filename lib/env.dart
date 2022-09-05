@@ -14,16 +14,20 @@ class Environment {
 enum FlavorConfig {
   prod(
     backendUrl: 'https://astralnote-backend-vs4jdv4dxa-lz.a.run.app',
+    dataSyncInerval: 60,
     feedbackEmail: 'matvei.tikka@gmail.com',
   ),
   dev(
     backendUrl: 'https://astralnote-backend-vs4jdv4dxa-lz.a.run.app',
+    dataSyncInerval: 600,
     feedbackEmail: 'matvei.tikka@gmail.com',
   );
 
   const FlavorConfig({
-    required this.backendUrl,
     required this.feedbackEmail,
+    required this.backendUrl,
+    required this.dataSyncInerval,
   });
   final String backendUrl, feedbackEmail;
+  final int dataSyncInerval;
 }

@@ -30,7 +30,7 @@ class NotesCubit extends Cubit<NotesState> {
         .listen(_onNotesRemoteChanged);
     _searchQuerySubject.debounceTime(const Duration(milliseconds: 100)).listen((searchInput) {
       emit(state.copyWith(searchQuery: searchInput));
-      _onFilterNotes();
+      // _onFilterNotes();
     });
   }
   final NotesLocalRepository _notesLocalRepository;
@@ -41,9 +41,9 @@ class NotesCubit extends Cubit<NotesState> {
 
   Future<void> _onNotesLocalChanged(Either<NotesLocalFailure, List<Note>> failureOrNotes) async {
     failureOrNotes.fold(
-      (error) => emit(state.copyWith(isLoading: false, isFailure: error)),
+      (error) => emit(state.copyWith(status: NotesFailure.localFailure)),
       (notesLocal) {
-        emit(state.copyWith(isLoading: false, notesLocal: notesLocal, notesFiltered: notesLocal));
+        emit(state.copyWith(notesLocal: notesLocal, notesFiltered: notesLocal));
         _iterateNotes();
       },
     );
@@ -51,9 +51,9 @@ class NotesCubit extends Cubit<NotesState> {
 
   Future<void> _onNotesRemoteChanged(Either<DirectusError, List<Note>> failureOrNotes) async {
     failureOrNotes.fold(
-      (error) => emit(state.copyWith(isLoading: false)),
+      (error) => emit(state.copyWith(status: NotesFailure.remoteFailure)),
       (notesRemote) {
-        emit(state.copyWith(isLoading: false, notesRemote: notesRemote));
+        emit(state.copyWith(notesRemote: notesRemote));
         _iterateNotes();
       },
     );
@@ -133,24 +133,24 @@ class NotesCubit extends Cubit<NotesState> {
     _searchQuerySubject.add(searchQuery);
   }
 
-  _onFilterNotes() {
-    final List<Note> filteredNotes = [];
+  // _onFilterNotes() {
+  //   final List<Note> filteredNotes = [];
 
-    final searchQuery = state.searchQuery;
-    if (searchQuery.isNotEmpty) {
-      final searchResult = extractAllSorted<Note>(
-        query: searchQuery,
-        choices: state.notesLocal!.where((note) => note.status == NoteStatus.published).toList(),
-        cutoff: 50,
-        getter: (note) => note.content,
-      ).map((result) => result.choice).toList();
-      filteredNotes.addAll(searchResult);
-    } else {
-      filteredNotes.addAll(state.notesLocal!);
-    }
+  //   final searchQuery = state.searchQuery;
+  //   if (searchQuery.isNotEmpty) {
+  //     final searchResult = extractAllSorted<Note>(
+  //       query: searchQuery,
+  //       choices: state.notesLocal!.where((note) => note.status == NoteStatus.published).toList(),
+  //       cutoff: 50,
+  //       getter: (note) => note.content,
+  //     ).map((result) => result.choice).toList();
+  //     filteredNotes.addAll(searchResult);
+  //   } else {
+  //     filteredNotes.addAll(state.notesLocal!);
+  //   }
 
-    emit(state.copyWith(notesFiltered: filteredNotes));
-  }
+  //   emit(state.copyWith(notesFiltered: filteredNotes));
+  // }
 
   void onChangeNoteStatus({required Note note, required NoteStatus newNoteStatus}) {
     final updatedNote = note.copyWith(status: newNoteStatus, dateUpdated: DateTime.now().toUtc());
@@ -166,9 +166,16 @@ class NotesCubit extends Cubit<NotesState> {
   }
 
   void onDispose() {
-    emit(state.copyWith(isLoading: true, searchQuery: '', notesLocal: [], notesRemote: [], notesFiltered: []));
+    // emit(state.copyWith(
+    //   status: NotesStatus.initialLoading,
+    //   searchQuery: '',
+    //   notesLocal: null,
+    //   notesRemote: null,
+    //   notesFiltered: [],
+    // ));
     _notesLocalRepository.dispose();
     _notesRemoteRepository.dispose();
+    emit(NotesState.initial());
   }
 
   @override

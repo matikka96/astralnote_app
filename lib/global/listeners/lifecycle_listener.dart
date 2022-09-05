@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:astralnote_app/env.dart';
 import 'package:astralnote_app/global/blocks/lifecycle/lifecycle_cubit.dart';
 import 'package:astralnote_app/global/blocks/notes/notes_cubit.dart';
 import 'package:astralnote_app/global/blocks/remote_config/remote_config_cubit.dart';
@@ -18,9 +19,9 @@ class LifecycleListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void _syncNotesPeriodicallyLauncher() {
+    void syncNotesPeriodicallyLauncher() {
       context.read<NotesCubit>().onRefreshNotesRemote();
-      Timer.periodic(const Duration(seconds: 600), (timer) {
+      Timer.periodic(Duration(seconds: Environment().config.dataSyncInerval), (timer) {
         if (!context.read<LifecycleCubit>().state.isOnlineAndActiveAndAuthenticated) {
           timer.cancel();
         } else {
@@ -37,7 +38,7 @@ class LifecycleListener extends StatelessWidget {
           switch (state.isOnlineAndActiveAndAuthenticated) {
             case true:
               // Trigger repeated timer for loading notes from cloud when online, app active & user authenticated
-              _syncNotesPeriodicallyLauncher();
+              syncNotesPeriodicallyLauncher();
               context.read<UserCubit>().onLoadCurrentUser();
               break;
             case false:

@@ -52,11 +52,11 @@ class _Body extends StatelessWidget {
       ),
       body: SafeArea(
         child: TextField(
+          controller: contentController,
           readOnly: note.status == NoteStatus.published ? false : true,
           autofocus: note.content.isEmpty ? true : false,
-          controller: contentController,
           maxLines: 1000,
-          decoration: const InputDecoration(border: InputBorder.none),
+          decoration: const InputDecoration(border: InputBorder.none, fillColor: Colors.transparent),
         ),
       ),
     );

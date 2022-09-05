@@ -1,3 +1,4 @@
+import 'package:astralnote_app/core/extensions/extensions.dart';
 import 'package:astralnote_app/core/ui/hybrid_scroll_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -35,16 +36,21 @@ class CustomLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Expanded(
-            child: child,
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Expanded(
+          child: child,
+        ),
+        if (bottomWidgets != null)
+          Container(
+            padding: EdgeInsets.only(bottom: context.safeAreaPadding.bottom),
+            color: context.theme.highlightColor,
+            child: Column(
+              children: bottomWidgets!,
+            ),
           ),
-          if (bottomWidgets != null) Column(children: bottomWidgets!),
-        ],
-      ),
+      ],
     );
   }
 }

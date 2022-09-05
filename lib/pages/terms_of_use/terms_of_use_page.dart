@@ -64,43 +64,45 @@ class _Body extends StatelessWidget {
             ),
             CustomDivider.emptySmall(),
           ],
-          child: Column(
-            children: [
-              CustomDivider.empty(),
-              ListTile(
-                title: Text(
-                  user?.acceptedAppInfoId == null
-                      ? 'Accept term of use and privacy policy to proceed'
-                      : 'Terms of use and/or privacy policy have been updated',
-                  style: context.theme.textTheme.headlineMedium,
-                ),
-              ),
-              CustomDivider.empty(),
-              ListTile(
-                subtitle: Text(
-                  'Astralnote respects your privacy! Please, have a closer look by tapping on the links below if you doubt ;)',
-                  style: context.theme.textTheme.bodyMedium?.copyWith(
-                    height: 1.5,
-                    color: context.theme.textTheme.caption?.color,
+          child: SafeArea(
+            child: Column(
+              children: [
+                CustomDivider.empty(),
+                ListTile(
+                  title: Text(
+                    user?.acceptedAppInfoId == null
+                        ? 'Accept term of use and privacy policy to proceed'
+                        : 'Terms of use and/or privacy policy have been updated',
+                    style: context.theme.textTheme.headlineMedium,
                   ),
                 ),
-              ),
-              CustomDivider.empty(),
-              CustomListItem.switcher(
-                context,
-                onChanged: (newValue) => context.read<TermsOfUseCubit>().onTermsOfUseChanged(isAccepted: newValue),
-                title: 'Terms of use',
-                value: state.termsOfUseAccepted,
-                url: remoteConfigState.termsOfUse,
-              ),
-              CustomListItem.switcher(
-                context,
-                onChanged: (newValue) => context.read<TermsOfUseCubit>().onPrivacyPolicyChanged(isAccepted: newValue),
-                title: 'Privacy policy',
-                value: state.privacyPolicyAccepted,
-                url: remoteConfigState.privacyPolicy,
-              ),
-            ],
+                CustomDivider.empty(),
+                ListTile(
+                  subtitle: Text(
+                    'Astralnote respects your privacy! Please, have a closer look by tapping on the links below if you doubt ;)',
+                    style: context.theme.textTheme.bodyMedium?.copyWith(
+                      height: 1.5,
+                      color: context.theme.textTheme.caption?.color,
+                    ),
+                  ),
+                ),
+                CustomDivider.empty(),
+                CustomListItem.switcher(
+                  context,
+                  onChanged: (newValue) => context.read<TermsOfUseCubit>().onTermsOfUseChanged(isAccepted: newValue),
+                  title: 'Terms of use',
+                  value: state.termsOfUseAccepted,
+                  url: remoteConfigState.termsOfUse,
+                ),
+                CustomListItem.switcher(
+                  context,
+                  onChanged: (newValue) => context.read<TermsOfUseCubit>().onPrivacyPolicyChanged(isAccepted: newValue),
+                  title: 'Privacy policy',
+                  value: state.privacyPolicyAccepted,
+                  url: remoteConfigState.privacyPolicy,
+                ),
+              ],
+            ),
           ),
         );
       },

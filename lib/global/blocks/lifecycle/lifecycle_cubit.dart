@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:astralnote_app/infrastructure/auth_repository.dart';
 import 'package:astralnote_app/infrastructure/network_monitor_repository.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 

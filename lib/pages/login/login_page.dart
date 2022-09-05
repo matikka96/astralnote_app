@@ -18,9 +18,7 @@ class LoginPage extends StatelessWidget {
       create: (context) => LoginCubit(authRepository: context.read<AuthRepository>()),
       child: Scaffold(
         appBar: AppBar(title: const Text('Login')),
-        body: SafeArea(
-          child: _Body(),
-        ),
+        body: _Body(),
       ),
     );
   }
@@ -61,6 +59,7 @@ class _Body extends StatelessWidget {
               text: 'Login',
             ),
             if (Environment().isDev)
+              // TODO: Remove these credentials
               HybridButton.secondary(
                 onPressed: () async => loginCubit.onLogin(email: 'matvei.tikka@outlook.com', password: 'Test123!'),
                 text: 'Quick login',

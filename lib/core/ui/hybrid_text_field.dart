@@ -25,11 +25,11 @@ class HybridTextField extends StatelessWidget {
     if (Platform.isIOS) {
       return ListTile(
         title: Padding(
-          padding: const EdgeInsets.only(top: 5),
+          padding: const EdgeInsets.only(top: 12),
           child: placeholder != null ? Text(placeholder!) : null,
         ),
         subtitle: Padding(
-          padding: const EdgeInsets.only(top: 5),
+          padding: const EdgeInsets.only(top: 8),
           child: CupertinoTextField(
             controller: controller,
             padding: const EdgeInsets.all(10),

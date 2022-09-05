@@ -7,29 +7,35 @@ class CustomTheme {
   factory CustomTheme() => _singleton;
 
   // Universal theme features
-  static const _primaryColor = Colors.purple;
-  static const _secondaryColor = Colors.purple;
-  static const _onSecondaryColor = Colors.white;
-  static const _primarySwatch = _primaryColor;
+  static const _primaryColor = Colors.deepPurple;
+  static const _secondaryColor = Colors.purpleAccent;
+  static const _onPrimaryColor = Colors.white;
   static const _splashFactory = NoSplash.splashFactory;
   static const _shadowColor = Colors.transparent;
   static const _appBarTheme = AppBarTheme(elevation: 0, scrolledUnderElevation: 5, centerTitle: true);
   static const _tooltipTheme = TooltipThemeData(triggerMode: TooltipTriggerMode.manual);
   static const _inputDecorationTheme = InputDecorationTheme(
+    labelStyle: TextStyle(),
     border: OutlineInputBorder(borderSide: BorderSide.none),
     isDense: true,
     filled: true,
   );
   static const _snackBarTheme = SnackBarThemeData(behavior: SnackBarBehavior.floating, shape: StadiumBorder());
-  static const _floatingActionButtonTheme = FloatingActionButtonThemeData(elevation: 0, highlightElevation: 0);
+  static const _floatingActionButtonTheme = FloatingActionButtonThemeData(
+    elevation: 0,
+    highlightElevation: 0,
+    backgroundColor: _primaryColor,
+    foregroundColor: _onPrimaryColor,
+  );
 
   // Light theme
   static final lightTheme = ThemeData(
-    primarySwatch: _primarySwatch,
+    primarySwatch: _primaryColor,
     colorScheme: const ColorScheme.light().copyWith(
       primary: _primaryColor,
-      secondary: _secondaryColor,
-      onSecondary: _onSecondaryColor,
+      secondary: _primaryColor,
+      onPrimary: _onPrimaryColor,
+      onSecondary: _onPrimaryColor,
     ),
     splashFactory: _splashFactory,
     shadowColor: _shadowColor,
@@ -44,23 +50,24 @@ class CustomTheme {
   static final darkTheme = ThemeData.dark().copyWith(
     colorScheme: const ColorScheme.dark().copyWith(
       primary: _primaryColor,
-      secondary: _primaryColor,
-      onSecondary: _onSecondaryColor,
+      secondary: _secondaryColor,
+      onPrimary: _onPrimaryColor,
     ),
     scaffoldBackgroundColor: Colors.black,
     primaryColor: _primaryColor,
     splashFactory: _splashFactory,
     shadowColor: _shadowColor,
-    // dividerColor: Colors.red, // TODO: Pass proper value
+    dividerColor: const Color(0x66BCBCBC),
     appBarTheme: _appBarTheme.copyWith(backgroundColor: _primaryColor),
     tooltipTheme: _tooltipTheme,
     inputDecorationTheme: _inputDecorationTheme,
     snackBarTheme: _snackBarTheme,
     floatingActionButtonTheme: _floatingActionButtonTheme,
+    textSelectionTheme: const TextSelectionThemeData(cursorColor: _secondaryColor),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(linearTrackColor: _secondaryColor),
     cupertinoOverrideTheme: const CupertinoThemeData(
-      primaryColor: _primaryColor,
-      textTheme: CupertinoTextThemeData(primaryColor: _onSecondaryColor),
-      scaffoldBackgroundColor: Colors.red,
+      primaryColor: _secondaryColor,
+      textTheme: CupertinoTextThemeData(primaryColor: _onPrimaryColor),
     ),
   );
 }

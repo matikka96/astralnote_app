@@ -16,29 +16,33 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onPanDown: (_) => context.hideKeyboard,
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          title: const Text('Astralnote'),
-          leading: IconButton(
-            onPressed: () => Navigator.pushNamed(context, Routes.profile.name),
-            icon: const Icon(Icons.account_circle),
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.sort),
+    return BlocListener<NotesCubit, NotesState>(
+      listenWhen: (previous, current) => !previous.isSyncing && current.isSyncing,
+      listener: (_, state) => context.showSnackbarCustom(content: const LinearProgressIndicator()),
+      child: GestureDetector(
+        onPanDown: (_) => context.hideKeyboard,
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            title: const Text('Astralnote'),
+            leading: IconButton(
+              onPressed: () => Navigator.pushNamed(context, Routes.profile.name),
+              icon: const Icon(Icons.account_circle),
             ),
-          ],
+            actions: [
+              IconButton(
+                onPressed: () => context.showSnackbarMessage('Test message'),
+                icon: const Icon(Icons.sort),
+              ),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => Navigator.pushNamed(context, Routes.viewNote.name, arguments: Note.create()),
+            child: const Icon(Icons.add),
+          ),
+          body: const _Body(),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => Navigator.pushNamed(context, Routes.viewNote.name, arguments: Note.create()),
-          child: const Icon(Icons.add),
-        ),
-        body: const _Body(),
       ),
     );
   }
@@ -50,28 +54,25 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final searchController = TextEditingController(text: '');
-    searchController.addListener(() {
-      context.read<NotesCubit>().onUpdateSearchQuery(searchController.text);
-    });
+    searchController.addListener(() => context.read<NotesCubit>().onUpdateSearchQuery(searchController.text));
 
-    return BlocConsumer<NotesCubit, NotesState>(
-      listenWhen: (previous, current) => !previous.isSyncing && current.isSyncing,
-      listener: (_, state) => context.showSnackbarCustom(content: const LinearProgressIndicator()),
+    return BlocBuilder<NotesCubit, NotesState>(
+      // buildWhen: (previous, current) => previous.notesPublished != current.notesPublished,
       builder: (context, state) {
-        if (state.isLoading) return const Center(child: CircularProgressIndicator());
-        if (state.isFailure != null) return const Center(child: Text('Error'));
-        if (state.notesFiltered.isEmpty) return const Center(child: Text('No notes created'));
+        print(state.status);
+        // if (state.isInitialLoading) return const Center(child: CircularProgressIndicator());
+        if (state.notesPublished.isEmpty) return const Center(child: Text('No notes created'));
 
-        final notes = state.notesPublished;
-
+        final notes = state.publishedAndSorted;
         return SafeArea(
           child: RefreshIndicator(
+            color: context.theme.colorScheme.secondary,
             onRefresh: () async {
               HapticFeedback.selectionClick();
               if (context.read<LifecycleCubit>().state.appIsOnline) {
                 await context.read<NotesCubit>().onRefreshNotesRemote();
               } else {
-                context.showSnackbarMessage('App is offline. Try again later.');
+                context.showSnackbarMessage('You\'re offline. Try again later.');
               }
             },
             child: HybridScrollbar(
@@ -82,7 +83,7 @@ class _Body extends StatelessWidget {
                     delegate: SliverChildListDelegate(
                       [
                         HybridSearchField(controller: searchController),
-                        if (notes.isEmpty)
+                        if (state.publishedAndSorted.isEmpty)
                           ListTile(
                             title: Text(
                               'No search results with "${searchController.text}"',
@@ -92,18 +93,17 @@ class _Body extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (notes.isNotEmpty)
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) => Column(
-                          children: [
-                            CustomDivider.list(),
-                            CustomListItem.note(context, note: notes[index]),
-                          ],
-                        ),
-                        childCount: notes.length,
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => Column(
+                        children: [
+                          CustomDivider.list(),
+                          CustomListItem.note(context, note: notes[index]),
+                        ],
                       ),
+                      childCount: notes.length,
                     ),
+                  ),
                 ],
               ),
             ),
