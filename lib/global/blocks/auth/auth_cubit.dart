@@ -12,7 +12,7 @@ class AuthCubit extends Cubit<AuthState> {
     required AuthRepository authRepository,
   })  : _authRepository = authRepository,
         super(AuthState.initial()) {
-    _isAuthenticatedSubscrption = _authRepository.isAuthenticatedObservable.listen(_setAuthStatus);
+    _isAuthenticatedSubscrption = _authRepository.isAuthenticatedObservable.listen(_onSetAuthStatus);
   }
 
   final AuthRepository _authRepository;
@@ -21,7 +21,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> onLogout() => _authRepository.logout();
 
-  void _setAuthStatus(AuthStatus authStatus) async {
+  void _onSetAuthStatus(AuthStatus authStatus) {
     emit(state.copyWith(status: authStatus));
   }
 

@@ -14,7 +14,7 @@ class UserCubit extends Cubit<UserState> {
 
   final UserRepository _userRepository;
 
-  onLoadCurrentUser() async {
+  Future<void> onLoadCurrentUser() async {
     if (state.user == null) {
       final failureOrCurrentUser = await _userRepository.getCurrentUser();
       failureOrCurrentUser.fold(
@@ -24,7 +24,7 @@ class UserCubit extends Cubit<UserState> {
     }
   }
 
-  onDelete() async {
+  Future<void> onDelete() async {
     if (state.user == null) {
       final failreOrUserDeleted = await _userRepository.deleteCurrentUser(userId: state.user!.id);
       failreOrUserDeleted.fold(

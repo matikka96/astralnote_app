@@ -16,7 +16,7 @@ class LifecycleCubit extends Cubit<LifecycleState> {
         _authRepository = authRepository,
         super(LifecycleState.initial()) {
     _connectionStatusStream = _networkMonitorRepository.status.listen(_onNetworkStatusChanged);
-    _isAuthenticatedSubscrption = _authRepository.isAuthenticatedObservable.listen(_setAuthStatus);
+    _isAuthenticatedSubscrption = _authRepository.isAuthenticatedObservable.listen(_onAuthStatusChanged);
   }
 
   final NetworkMonitorRepository _networkMonitorRepository;
@@ -27,9 +27,9 @@ class LifecycleCubit extends Cubit<LifecycleState> {
 
   void _onNetworkStatusChanged(NetworkStatus networkStatus) {
     if (networkStatus == NetworkStatus.online) {
-      emit(state.copyWith(connectivity: ConnectivityStatus.online));
+      emit(state.copyWith(connectivity: NetworkStatus.online));
     } else {
-      emit(state.copyWith(connectivity: ConnectivityStatus.offline));
+      emit(state.copyWith(connectivity: NetworkStatus.offline));
     }
   }
 
@@ -41,7 +41,7 @@ class LifecycleCubit extends Cubit<LifecycleState> {
     }
   }
 
-  void _setAuthStatus(AuthStatus authStatus) async {
+  void _onAuthStatusChanged(AuthStatus authStatus) {
     emit(state.copyWith(authStatus: authStatus));
   }
 

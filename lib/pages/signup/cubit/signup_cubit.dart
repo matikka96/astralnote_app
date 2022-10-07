@@ -21,7 +21,7 @@ class SignupCubit extends Cubit<SignupState> {
 
   void test() => emit(state.copyWith(status: SingupStatus.success));
 
-  onSignup({required String email, required String password}) async {
+  Future<void> onSignup({required String email, required String password}) async {
     final failureOrRoleId = await authRepository.getUserRoleId();
     await failureOrRoleId.fold(
       (l) {},

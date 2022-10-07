@@ -10,7 +10,6 @@ import 'package:astralnote_app/global/blocks/notes/notes_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ActionMenu extends StatelessWidget {
   const ActionMenu({
@@ -40,7 +39,7 @@ class ActionMenu extends StatelessWidget {
           description: 'Delete',
           icon: Icons.delete_outline,
           onPress: () {
-            context.read<NotesCubit>().onChangeNoteStatus(note: note, newNoteStatus: NoteStatus.archived);
+            context.readOrNull<NotesCubit>()?.onChangeNoteStatus(note: note, newNoteStatus: NoteStatus.archived);
             if (context.hasActiveParentRoute) context.navigator.pop();
           },
         ),
@@ -56,7 +55,7 @@ class ActionMenu extends StatelessWidget {
           description: 'Restore',
           icon: Icons.restore,
           onPress: () {
-            context.read<NotesCubit>().onChangeNoteStatus(note: note, newNoteStatus: NoteStatus.published);
+            context.readOrNull<NotesCubit>()?.onChangeNoteStatus(note: note, newNoteStatus: NoteStatus.published);
             if (popRoute && context.hasActiveParentRoute) context.navigator.pop();
           },
         ),
@@ -64,7 +63,7 @@ class ActionMenu extends StatelessWidget {
           description: 'Delete permanently',
           icon: Icons.delete_outline,
           onPress: () async {
-            context.read<NotesCubit>().onChangeNoteStatus(note: note, newNoteStatus: NoteStatus.deleted);
+            context.readOrNull<NotesCubit>()?.onChangeNoteStatus(note: note, newNoteStatus: NoteStatus.deleted);
             if (popRoute && context.hasActiveParentRoute) context.navigator.pop();
           },
         ),

@@ -9,11 +9,11 @@ class NotesState with _$NotesState {
     required bool isSyncing,
     required String searchQuery,
     required NotesSortOrder sortOrder,
+    required NetworkStatus connectivity,
     required List<Note>? notesLocal,
     required List<Note>? notesRemote,
     required List<Note> notesFiltered,
     required NotesFailure status,
-    // NotesLocalFailure? isFailure,
   }) = _NotesState;
 
   const NotesState._();
@@ -24,6 +24,7 @@ class NotesState with _$NotesState {
       isSyncing: false,
       searchQuery: '',
       sortOrder: NotesSortOrder.dateEdited,
+      connectivity: NetworkStatus.offline,
       notesLocal: null,
       notesRemote: null,
       notesFiltered: [],
@@ -31,7 +32,7 @@ class NotesState with _$NotesState {
     );
   }
 
-  bool get canSync => !isSyncing && notesLocal != null && notesRemote != null;
+  bool get canSync => !isSyncing && notesLocal != null && notesRemote != null && connectivity == NetworkStatus.online;
 
   List<Note> get notesPublished => notesFiltered.where((note) => note.status == NoteStatus.published).toList();
 
@@ -63,23 +64,6 @@ class NotesState with _$NotesState {
 
     return publishedAndSorted;
   }
-
-  // List<Note> get notesPublished {
-  //   final published = notesFiltered.where((note) => note.status == NoteStatus.published).toList();
-  //   List<Note> publishedAndSorted = [];
-  //   switch (sortOrder) {
-  //     case NotesSortOrder.dateEdited:
-  //       publishedAndSorted = published.sorted((a, b) => a.isMoreRecentThan(b) ? -1 : 1);
-  //       break;
-  //     case NotesSortOrder.dateCreated:
-  //       publishedAndSorted = published.sorted((a, b) => a.dateCreated.isAfter(b.dateCreated) ? -1 : 1);
-  //       break;
-  //     case NotesSortOrder.title:
-  //       publishedAndSorted = published.sortedBy((note) => note.title.toLowerCase());
-  //       break;
-  //   }
-  //   return publishedAndSorted;
-  // }
 
   List<Note> get notesRemoved {
     return notesFiltered

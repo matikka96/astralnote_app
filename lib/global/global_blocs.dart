@@ -48,6 +48,7 @@ class GlobalBlocs extends StatelessWidget {
           create: (_) => NotesCubit(
             notesLocalRepository: context.read<NotesLocalRepository>(),
             notesRemoteRepository: context.read<NotesRemoteRepository>(),
+            networkMonitorRepository: context.read<NetworkMonitorRepository>(),
           ),
         ),
         BlocProvider<LocalConfigCubit>(

@@ -4,7 +4,7 @@ class Environment {
   factory Environment() => _singleton;
 
   FlavorConfig _config = FlavorConfig.dev;
-  init(FlavorConfig flavor) => _config = flavor;
+  FlavorConfig init(FlavorConfig flavor) => _config = flavor;
 
   FlavorConfig get config => _config;
   bool get isDev => _config == FlavorConfig.dev;

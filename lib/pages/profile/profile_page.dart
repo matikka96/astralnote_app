@@ -1,4 +1,5 @@
 import 'package:astralnote_app/core/extensions/extensions.dart';
+import 'package:astralnote_app/core/helpers/url_launcher.dart';
 import 'package:astralnote_app/core/ui/action_menu/action_menu.dart';
 import 'package:astralnote_app/core/ui/action_menu/action_menu_item.dart';
 import 'package:astralnote_app/core/ui/custom_list.dart';
@@ -12,7 +13,6 @@ import 'package:astralnote_app/global/blocks/local_config/local_config_cubit.dar
 import 'package:astralnote_app/global/blocks/notes/notes_cubit.dart';
 import 'package:astralnote_app/global/blocks/remote_config/remote_config_cubit.dart';
 import 'package:astralnote_app/global/blocks/user/user_cubit.dart';
-import 'package:astralnote_app/core/helpers/url_launcher.dart';
 import 'package:astralnote_app/router_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

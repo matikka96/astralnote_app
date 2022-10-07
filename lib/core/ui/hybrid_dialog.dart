@@ -57,7 +57,7 @@ class HybridDialog extends StatelessWidget {
   }
 }
 
-showHybridDialog(BuildContext context, {required HybridDialog content}) {
+Future showHybridDialog(BuildContext context, {required HybridDialog content}) {
   if (Platform.isIOS) {
     return showCupertinoDialog(
       context: context,

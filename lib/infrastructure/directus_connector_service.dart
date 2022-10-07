@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:astralnote_app/domain/directus/dto/get_many_directus_items_dto.dart';
 import 'package:astralnote_app/domain/directus/dto/get_one_directus_item_dto.dart';
 import 'package:astralnote_app/env.dart';
@@ -84,6 +86,7 @@ class DirectusConnectorService {
   // Generic error parser for Directus
   DirectusError _parseResponseError(responseError) {
     DirectusError error = DirectusError.unexpected;
+    log(responseError.toString());
     if (responseError is DioError && responseError.response?.statusCode == 400) error = DirectusError.failedValidation;
     if (responseError is DioError && responseError.response?.statusCode == 401) error = DirectusError.tokenExpired;
     if (responseError is DioError && responseError.response?.statusCode == 403) error = DirectusError.forbidden;

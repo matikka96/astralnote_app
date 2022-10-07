@@ -32,7 +32,7 @@ class NotesLocalRepository {
     }
   }
 
-  void _loadNotes() async {
+  Future<void> _loadNotes() async {
     try {
       final notesFile = await _localNotesFile;
       String? notesRaw = await notesFile.readAsString();
@@ -54,7 +54,7 @@ class NotesLocalRepository {
     }
   }
 
-  void _saveNotes() async {
+  Future<void> _saveNotes() async {
     try {
       final notesFile = await _localNotesFile;
       final failureOrNotes = _notesController.stream.value;

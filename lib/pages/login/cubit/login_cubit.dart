@@ -13,20 +13,20 @@ class LoginCubit extends Cubit<LoginState> {
 
   final AuthRepository _authRepository;
 
-  onUpdateEmailField(String email) {
+  void onUpdateEmailField(String email) {
     emit(state.copyWith(email: email));
   }
 
-  onUpdatePasswordField(String password) {
+  void onUpdatePasswordField(String password) {
     emit(state.copyWith(password: password));
   }
 
-  onLogin({required String email, required String password}) async {
+  Future<void> onLogin({required String email, required String password}) async {
     emit(state.copyWith(inProgress: true));
     final failureOrAuth = await _authRepository.login(email: email, password: password);
     failureOrAuth.fold(
       (error) {
-        // TODO: Error is not parsed correctly at the moment
+        // TODO: Error is not parsed properly at the moment
         switch (error) {
           case AuthError.invalidCredentials:
             emit(state.copyWith(status: LoginError.invalidCredentials));

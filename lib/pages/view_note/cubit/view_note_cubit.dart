@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:astralnote_app/infrastructure/notes_local_repository.dart';
 import 'package:astralnote_app/domain/note/note.dart';
+import 'package:astralnote_app/infrastructure/notes_local_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 
-part 'view_note_state.dart';
 part 'view_note_cubit.freezed.dart';
+part 'view_note_state.dart';
 
 class ViewNoteCubit extends Cubit<ViewNoteState> {
   ViewNoteCubit({
@@ -16,7 +16,7 @@ class ViewNoteCubit extends Cubit<ViewNoteState> {
         super(const ViewNoteState(editingNote: null)) {
     _noteEditingSubsription = _noteEditingController.stream
         .debounceTime(const Duration(seconds: 5))
-        .listen((updatedNote) => _updateLocalNote(updatedNote));
+        .listen((updatedNote) => _onUpdateLocalNote(updatedNote));
   }
 
   final NotesLocalRepository _notesLocalRepository;
@@ -24,9 +24,9 @@ class ViewNoteCubit extends Cubit<ViewNoteState> {
 
   final _noteEditingController = BehaviorSubject<Note>();
 
-  onInit({required Note note}) => emit(state.copyWith(editingNote: note));
+  void onInit({required Note note}) => emit(state.copyWith(editingNote: note));
 
-  onNoteUpdate(Note note, {required String updatedContent}) {
+  void onNoteUpdate(Note note, {required String updatedContent}) {
     if (state.editingNote != null && state.editingNote!.content != updatedContent) {
       final updatedNote = note.copyWith(content: updatedContent, dateUpdated: DateTime.now().toUtc());
       emit(state.copyWith(editingNote: updatedNote));
@@ -34,7 +34,7 @@ class ViewNoteCubit extends Cubit<ViewNoteState> {
     }
   }
 
-  _updateLocalNote(Note updatedNote) {
+  void _onUpdateLocalNote(Note updatedNote) {
     _notesLocalRepository.addOrUpdateNote(updatedNote);
   }
 
@@ -44,7 +44,7 @@ class ViewNoteCubit extends Cubit<ViewNoteState> {
 
     final savedVersionOfNote = _notesLocalRepository.findNoteById(state.editingNote?.id ?? '');
     if (state.editingNote != null && state.editingNote!.content != savedVersionOfNote?.content) {
-      _updateLocalNote(state.editingNote!);
+      _onUpdateLocalNote(state.editingNote!);
     }
 
     return super.close();

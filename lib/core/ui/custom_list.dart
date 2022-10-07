@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 
 class CustomListGroup extends StatelessWidget {
   const CustomListGroup({
-    this.title,
     required this.listItems,
+    this.title,
     Key? key,
   }) : super(key: key);
 

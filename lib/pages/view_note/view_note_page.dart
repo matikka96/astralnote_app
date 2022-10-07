@@ -1,6 +1,6 @@
 import 'package:astralnote_app/core/ui/action_menu/action_menu.dart';
-import 'package:astralnote_app/infrastructure/notes_local_repository.dart';
 import 'package:astralnote_app/domain/note/note.dart';
+import 'package:astralnote_app/infrastructure/notes_local_repository.dart';
 import 'package:astralnote_app/pages/view_note/cubit/view_note_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

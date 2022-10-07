@@ -7,9 +7,7 @@ import 'package:rxdart/rxdart.dart';
 class NotesRemoteRepository {
   NotesRemoteRepository({
     required DirectusConnectorService directusItemConnector,
-  }) : _directusItemConnector = directusItemConnector {
-    loadNotesRemote();
-  }
+  }) : _directusItemConnector = directusItemConnector;
 
   final DirectusConnectorService _directusItemConnector;
   static const _collection = 'note';

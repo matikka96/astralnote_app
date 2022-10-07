@@ -43,7 +43,7 @@ class RouterService {
     );
   }
 
-  navigate(RouteSettings settings) {
+  Route<dynamic> navigate(RouteSettings settings) {
     final route = Routes.values.firstWhere((route) => route.name == settings.name);
     switch (route) {
       case Routes.initial:

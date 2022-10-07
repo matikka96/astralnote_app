@@ -20,4 +20,13 @@ extension BuildContextExtension on BuildContext {
     ScaffoldMessenger.of(this).hideCurrentSnackBar();
     ScaffoldMessenger.of(this).showSnackBar(SnackBar(content: content));
   }
+
+  T? readOrNull<T>() {
+    try {
+      return read<T>();
+    } catch (e) {
+      log(e.toString());
+      return null;
+    }
+  }
 }

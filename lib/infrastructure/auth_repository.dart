@@ -1,13 +1,13 @@
 import 'dart:developer';
 
+import 'package:astralnote_app/domain/auth/auth.dart';
 import 'package:astralnote_app/domain/auth/dto/auth_dto.dart';
 import 'package:astralnote_app/domain/role/dto/role_dto.dart';
 import 'package:astralnote_app/infrastructure/directus_connector_service.dart';
 import 'package:astralnote_app/infrastructure/secure_storage_repository.dart';
 import 'package:collection/collection.dart';
-import 'package:astralnote_app/domain/auth/auth.dart';
 import 'package:dartz/dartz.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:rxdart/subjects.dart';
 
 enum AuthError { userNotExist, invalidCredentials, userAlreadyExist, invalidPayload, roleNoteFound, unexpected }
 
@@ -35,7 +35,7 @@ class AuthRepository {
 
   Stream<AuthStatus> get isAuthenticatedObservable => _isAuthenticatedController.stream;
 
-  _init() async {
+  Future<void> _init() async {
     final refreshToken = await _secureStorageRepository.getWithKey(StorageKeys.refreshToken);
     if (refreshToken != null) {
       _changeAuthenticationStatus(authStatus: AuthStatus.authenticated);

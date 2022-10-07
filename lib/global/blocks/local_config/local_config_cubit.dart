@@ -19,7 +19,7 @@ class LocalConfigCubit extends Cubit<LocalConfigState> {
 
   final SecureStorageRepository _secureStorageRepository;
 
-  _init() async {
+  Future<void> _init() async {
     final packageInfo = await PackageInfo.fromPlatform();
     final appVersion = packageInfo.version;
 
